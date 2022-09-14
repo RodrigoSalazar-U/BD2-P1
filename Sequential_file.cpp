@@ -35,4 +35,30 @@ bool Sequential_File::remove(int key);
 Record Sequential_File::search(int key);
 vector<Record> Sequential_File::range_search(int beg, int end);
 void Sequential_File::merge();
-void Sequential_File::print_records();
+
+void Sequential_File::print_records(){
+    fstream file_data(data_file, ios::in | ios::binary);
+    fstream file_aux(aux_file, ios::in | ios::binary);
+    if(!file_data or !file_aux){
+        return;
+    }
+
+    Record record;
+    readRecord(record,file_data);
+    print_record(record);
+
+    if(record.next_file == file_type::data){
+        file_data.seekg(record.next);
+    }
+    else{
+        file_aux.seekg(record.next);
+    }
+
+    while(readRecord(record, record.next_file == file_type::data ? file_data : file_aux)){
+        print_record(record);
+        (record.next_file == file_type::data ? file_data : file_aux).seekg(record.next);
+    }
+
+    file_data.close();
+    file_aux.close();
+}
