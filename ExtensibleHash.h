@@ -4,6 +4,7 @@
 #include <cstring>
 #include <fstream>
 #include <string>
+#include <functional>
 
 using namespace std;
 
@@ -125,6 +126,10 @@ class ExtensibleHash {
                 }
             }
             return true;
+        }
+        // Generate Hash
+        sufix_t generate_hash(T key) {
+            return std::hash<T>()(key);
         }
     public:
         // Write new entry
