@@ -6,6 +6,7 @@
 #include <string>
 #include <functional>
 
+// Comentar o descomentar para Activar/Desactivar mensajes de Debug
 #define DEBUG_ACTIONS // Show start and end of actions
 #define DEBUG_ADD_TREE // Show add decision tree
 #define DEBUG_SHOW_INDEX // Show index at start of actions
@@ -554,9 +555,10 @@ int main() {
     for (auto &r : sampledata) {
         ehash.add(r);
     }
-    // READ:
+    // READ EXACT:
     vector<Record> readdata;
     for (auto &r : sampledata) {
+        cout << "Exact Search results (" << r.get_key() << "):" << endl;
         readdata = ehash.search(r.get_key());
         if (readdata.size()){
             for (auto &rd : readdata) {
@@ -565,7 +567,23 @@ int main() {
             }
         }
         else {
-            cout << "NOT FOUND";
+            cout << "NOT FOUND" << endl;
         }
+    }
+    // READ RANGE:
+    vector<Record> readdatarange;
+    // NOTE: Por las operaciones si se tiene una subcadena, esta siempre se considera estrictamente menor
+    string start_key = "D";
+    string end_key = "K";
+    cout << "Range Search results (" << start_key << "," << end_key << "):" << endl;
+    readdatarange = ehash.rangeSearch(start_key, end_key);
+    if (readdatarange.size()){
+        for (auto &rd : readdatarange) {
+            rd.print_data();
+            cout << endl;
+        }
+    }
+    else {
+        cout << "NOT FOUND" << endl;
     }
 }
