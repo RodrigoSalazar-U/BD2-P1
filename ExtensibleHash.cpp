@@ -6,6 +6,10 @@
 #include <string>
 #include <functional>
 
+#define DEBUG_ACTIONS // Show start and end of actions
+#define DEBUG_ADD_TREE // Show add decision tree
+#define DEBUG_SHOW_INDEX // Show index at start of actions
+
 using namespace std;
 
 typedef long long pos_t;
@@ -143,6 +147,11 @@ struct IndexRecord {
         file.write( (char*) &(this->sufix), sizeof(sufix_t) );
         file.write( (char*) &(this->bucket_pos), sizeof(pos_t) );
     }
+    void print_data() {
+        cout << "Depth: " << depth << " | "
+             << "Sufix: " << sufix << " | "
+             << "BucketP: " << bucket_pos; 
+    }
 };
 
 class ExtensibleHash {
@@ -157,9 +166,9 @@ class ExtensibleHash {
         depth_t max_depth;
         // Index Add Entry
         void add_entry_index(IndexRecord irecord) {
-            if (max_depth < irecord.depth){
-                max_depth=irecord.depth;
-            }
+            //if (global_depth < irecord.depth){
+            //    global_depth=irecord.depth;
+            //}
             index_table.push_back(irecord);
         }
         // Index init
@@ -191,7 +200,7 @@ class ExtensibleHash {
         // Index load
         void load_index() {
             ifstream input_index(filename_index, ios::binary);
-            max_depth = 0; // Start depth at 0
+            // global_depth = 0; // Start depth at 0
             bool file_exists = input_index.is_open();
             if (file_exists){
                 IndexRecord irecord;
@@ -243,6 +252,16 @@ class ExtensibleHash {
             // No match 
             throw "NO MATCHING PREFIX";
         }
+        #ifdef DEBUG_SHOW_INDEX
+        void show_index() {
+            cout << "[DEBUG]: Current Index" << endl;
+            for (auto &ir : index_table) {
+                cout << "[DEBUG]: ->";
+                ir.print_data();
+                cout << endl;
+            }
+        }
+        #endif
     public:
         ExtensibleHash(filename_t filename, bsize_t bucket_size, depth_t depth) {
             filename_data = filename + ".dat";
@@ -256,6 +275,12 @@ class ExtensibleHash {
         }
         // Write new entry
         bool add(Record record) {
+            #ifdef DEBUG_ACTIONS
+            cout << "[DEBUG]: Start add" << endl;
+            #endif
+            #ifdef DEBUG_SHOW_INDEX
+            show_index();
+            #endif
             // TODO: Add
             // Get hash
             auto key_hash = generate_hash(record.get_key());
@@ -269,8 +294,13 @@ class ExtensibleHash {
                 bucket.load_from_file(data_file, bucket_pos, bucket_max_size);
                 // Check if bucket is full
                 if (bucket.bsize == bucket_max_size){
-                    // FULL CASE:
+                    // FULL CASE
+                    cout << "IRECORD DEPTH" << irecord->depth;
+                    cout << "MAX DEPTH" << max_depth;
                     if (irecord->depth < max_depth) {
+                        #ifdef DEBUG_ADD_TREE
+                        cout << "[DEBUG]: Branch add::SPLIT" << endl;
+                        #endif
                         // SPLIT
                         // zro_sufix: 0+sufix (insert in old)
                         // one_sufix: 1+sufix (insert in new)
@@ -313,6 +343,9 @@ class ExtensibleHash {
                         add_entry_index(irecord_new);
                     }
                     else {
+                        #ifdef DEBUG_ADD_TREE
+                        cout << "[DEBUG]: Branch add::OVERFLOW_PAGE" << endl;
+                        #endif
                         // OVERFLOW PAGE
                         auto prev_bucket_pos = bucket_pos;
                         bucket_pos = bucket.next_bucket;
@@ -341,6 +374,9 @@ class ExtensibleHash {
                 }
                 else {
                     // NOTFULL CASE: Simple insert
+                    #ifdef DEBUG_ADD_TREE
+                    cout << "[DEBUG]: Branch add::SIMPLE_INSERT" << endl;
+                    #endif
                     bucket.records.push_back(record);
                     bucket.bsize++;
                 }
@@ -351,13 +387,25 @@ class ExtensibleHash {
             else {
                 // On fail to open: return false
                 data_file.close();
+                #ifdef DEBUG_ACTIONS
+                cout << "[DEBUG]: End add (Fail open)" << endl;
+                #endif
                 return false;
             }
+            #ifdef DEBUG_ACTIONS
+            cout << "[DEBUG]: End add (Success)" << endl;
+            #endif
             return true;
         }
         // Remove entry
         bool remove(T key) {
             // TODO: remove
+            #ifdef DEBUG_ACTIONS
+            cout << "[DEBUG]: Start remove" << endl;
+            #endif
+            #ifdef DEBUG_SHOW_INDEX
+            show_index();
+            #endif
             // Get hash
             auto key_hash = generate_hash(key);
             // Search for matching bucket in index table
@@ -388,14 +436,26 @@ class ExtensibleHash {
             else {
                 // On fail to open: return false
                 data_file.close();
+                #ifdef DEBUG_ACTIONS
+                cout << "[DEBUG]: End remove (Fail open)" << endl;
+                #endif
                 return false;
             }
             // Return
+            #ifdef DEBUG_ACTIONS
+            cout << "[DEBUG]: End remove (Success)" << endl;
+            #endif
             return true;
         }
         
         // Search entry
         vector<Record> search(T key) {
+            #ifdef DEBUG_ACTIONS
+            cout << "[DEBUG]: Start search" << endl;
+            #endif
+            #ifdef DEBUG_SHOW_INDEX
+            show_index();
+            #endif
             // Initialize return vector
             vector<Record> result_records;
             // Get hash
@@ -418,12 +478,26 @@ class ExtensibleHash {
                     bucket_pos = bucket.next_bucket; // Point to next bucket pos
                 }
             }
+            #ifdef DEBUG_ACTIONS
+            else{
+                cout << "[DEBUG]: Search (Fail open)" << endl;
+            }
+            #endif
             data_file.close();
             // Return
+            #ifdef DEBUG_ACTIONS
+            cout << "[DEBUG]: End search" << endl;
+            #endif
             return result_records;
         }
         // SearchRange entry
         vector<Record> rangeSearch(T begin_key, T end_key) {
+            #ifdef DEBUG_ACTIONS
+            cout << "[DEBUG]: Start rangeSearch" << endl;
+            #endif
+            #ifdef DEBUG_SHOW_INDEX
+            show_index();
+            #endif
             // Initialize return vector
             vector<Record> result_records;
             // Open file
@@ -446,8 +520,16 @@ class ExtensibleHash {
                     }
                 }
             }
+            #ifdef DEBUG_ACTIONS
+            else{
+                cout << "[DEBUG]: rangeSearch (Fail open)" << endl;
+            }
+            #endif
             data_file.close();
             // Return
+            #ifdef DEBUG_ACTIONS
+            cout << "[DEBUG]: End rangeSearch" << endl;
+            #endif
             return result_records;
         }
 };
@@ -459,15 +541,17 @@ int main() {
     filename_t filename  = "students_ehash";
     ExtensibleHash ehash(filename, 2, 3);
     // INSERT:
-    //Record r1;
-    //r1.set_data("Rodrigo","Salazar","12345","CS",19,6,120);
-    //ehash.add(r1);
+    Record r1;
+    r1.set_data("Rodrigo","Salazar","12345","CS",19,6,120);
+    ehash.add(r1);
     // READ
     vector<Record> readdata;
     readdata = ehash.search("Rodrigo");
     if (readdata.size()){
-        cout << "FOUND";
-        readdata[0].print_data();
+        for (auto &r : readdata) {
+            r.print_data();
+            cout << endl;
+        }
     }
     else {
         cout << "NOT FOUND";
