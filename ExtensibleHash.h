@@ -117,11 +117,11 @@ class ExtensibleHash {
             out_index.close();
         }
         // Compare Hash
-        bool validate_hash(sufix_t hash, sufix_t sufix, depth_t depth) {
+        bool validate_hash(sufix_t key_hash, sufix_t sufix, depth_t depth) {
             for (int i = 0; i<depth; i++) {
-                sufix_t hash_bit = hash%2; hash = hash/2; // Extract last bit
+                sufix_t key_hash_bit = key_hash%2; key_hash = key_hash/2; // Extract last bit
                 sufix_t sufix_bit = sufix%2; sufix = sufix/2; // Extract last bit
-                if (hash_bit != sufix_bit) {
+                if (key_hash_bit != sufix_bit) {
                     return false;
                 }
             }
@@ -131,6 +131,7 @@ class ExtensibleHash {
         sufix_t generate_hash(T key) {
             return std::hash<T>()(key);
         }
+
     public:
         // Write new entry
         bool add(Record record) {
@@ -143,7 +144,11 @@ class ExtensibleHash {
         // Search entry
         vector<Record> search(T key) {
             // TODO: search
-
+            // Get hash
+            auto key_hash = generate_hash(key);
+            // Search for matching bucket in index table
+            // Search bucket and overflow pages
+            // Return
         }
         // SearchRange entry
         vector<Record> rangeSearch(T begin_key, T end_key) {
