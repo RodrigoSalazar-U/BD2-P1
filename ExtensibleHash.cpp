@@ -14,8 +14,6 @@ typedef int sufix_t;
 typedef long long bsize_t;
 typedef string filename_t;
 
-
-
 //TODO: Record structure
 typedef string T;
 struct Record{
@@ -38,7 +36,14 @@ struct Record{
     }
 
     void print_data(){
-        //
+        cout << string(nombre) << " | "
+        << string(apellido) << " | "
+        << string(nombre) << " | "
+        << string(codigo) << " | "
+        << string(carrera) << " | "
+        << edad << " | "
+        << ciclo << " | "
+        << creditos;
     }
 
     void load_from_file(fstream &file) {
@@ -63,12 +68,6 @@ struct Record{
 
     // DUPLICATE FOR OFSTREAM
     void save_to_file(ofstream &file) {
-        if ( !file.is_open() ) {
-            cout << "NOT OPEN";
-        }
-        else {
-            cout << "IS OPEN";
-        }
         file.write( (char*) nombre, sizeof(nombre) );
         file.write( (char*) apellido, sizeof(apellido) );
         file.write( (char*) codigo, sizeof(codigo) );
@@ -459,7 +458,18 @@ class ExtensibleHash {
 int main() {
     filename_t filename  = "students_ehash";
     ExtensibleHash ehash(filename, 2, 3);
-    Record r1;
-    r1.set_data("Rodrigo","Salazar","12345","CS",19,6,120);
-    ehash.add(r1);
+    // INSERT:
+    //Record r1;
+    //r1.set_data("Rodrigo","Salazar","12345","CS",19,6,120);
+    //ehash.add(r1);
+    // READ
+    vector<Record> readdata;
+    readdata = ehash.search("Rodrigo");
+    if (readdata.size()){
+        cout << "FOUND";
+        readdata[0].print_data();
+    }
+    else {
+        cout << "NOT FOUND";
+    }
 }
