@@ -15,15 +15,52 @@ typedef long long bsize_t;
 typedef string filename_t;
 
 
-//TODO: CHANGE TO TEMPLATE
-typedef int T;
-
-
+//TODO: Record structure
+typedef string T;
 struct Record{
-    // TODO:
-    T get_key() {
-        return 1;
+    char nombre[20];
+    char apellido[20];
+    char codigo[4];
+    char carrera[35];
+    int edad;
+    int ciclo;
+    int creditos;
+
+    void load_from_file(fstream &file) {
+        file.read( (char*) nombre, sizeof(nombre) );
+        file.read( (char*) apellido, sizeof(apellido) );
+        file.read( (char*) codigo, sizeof(codigo) );
+        file.read( (char*) carrera, sizeof(carrera) );
+        file.read( (char*) edad, sizeof(edad) );
+        file.read( (char*) ciclo, sizeof(ciclo) );
+        file.read( (char*) creditos, sizeof(creditos) );
     }
+
+    void save_to_file(fstream &file) {
+        file.write( (char*) nombre, sizeof(nombre) );
+        file.write( (char*) apellido, sizeof(apellido) );
+        file.write( (char*) codigo, sizeof(codigo) );
+        file.write( (char*) carrera, sizeof(carrera) );
+        file.write( (char*) edad, sizeof(edad) );
+        file.write( (char*) ciclo, sizeof(ciclo) );
+        file.write( (char*) creditos, sizeof(creditos) );
+    }
+
+    // DUPLICATE FOR OFSTREAM
+    void save_to_file(ofstream &file) {
+        file.write( (char*) nombre, sizeof(nombre) );
+        file.write( (char*) apellido, sizeof(apellido) );
+        file.write( (char*) codigo, sizeof(codigo) );
+        file.write( (char*) carrera, sizeof(carrera) );
+        file.write( (char*) edad, sizeof(edad) );
+        file.write( (char*) ciclo, sizeof(ciclo) );
+        file.write( (char*) creditos, sizeof(creditos) );
+    }
+
+    T get_key() {
+        return string(nombre);
+    }
+
 };
 
 struct Bucket {
@@ -38,7 +75,7 @@ struct Bucket {
         // Load to vector only valid data
         Record record;
         for (int i=0; i<bsize; i++) {
-            file.read( (char*) &(record), sizeof(Record) );
+            record.load_from_file(file);
             records.push_back(record);
         }
     }
@@ -52,7 +89,7 @@ struct Bucket {
             if (i<records.size()) {
                 record = records[i];
             }
-            file.write( (char*) &(record), sizeof(Record) );
+            record.save_to_file(file);
         }
     }
 
@@ -67,7 +104,7 @@ struct Bucket {
             if (i<records.size()) {
                 record = records[i];
             }
-            file.write( (char*) &(record), sizeof(Record) );
+            record.save_to_file(file);
         }
     }
 };
@@ -292,7 +329,42 @@ class ExtensibleHash {
         // Remove entry
         bool remove(T key) {
             // TODO: remove
+            // Get hash
+            auto key_hash = generate_hash(key);
+            // Search for matching bucket in index table
+            auto irecord = match_irecord(key_hash);
+            auto bucket_pos = irecord->bucket_pos;
+            Bucket bucket;
+            // Search bucket and overflow pages (remove ALL aparitions)
+            fstream data_file(filename_data, ios::binary | ios::in | ios::out);
+            if (data_file.is_open()){
+                while (bucket_pos != -1) {
+                    bucket.load_from_file(data_file, bucket_pos, bucket_max_size); // Read bucket
+                    // Remove repetitions from bucket
+                    vector<Record> res;
+                    for (auto &record :  bucket.records) {
+                        if (record.get_key() != key) {
+                            res.push_back(record);
+                        }
+                    }
+                    bucket.records = res;
+                    // Writeback bucket
+                    bucket.save_to_file(data_file, bucket_pos, bucket_max_size);
+                    // Point to next bucket pos
+                    bucket_pos = bucket.next_bucket; 
+                }
+                // Close file
+                data_file.close();
+            }
+            else {
+                // On fail to open: return false
+                data_file.close();
+                return false;
+            }
+            // Return
+            return true;
         }
+        
         // Search entry
         vector<Record> search(T key) {
             // Initialize return vector
