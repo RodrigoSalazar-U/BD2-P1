@@ -31,21 +31,42 @@ struct Bucket {
     pos_t next_bucket;
     vector<Record> records;
 
-    void load_from_file(fstream &file, pos_t bucket_pos) {
+    void load_from_file(fstream &file, pos_t bucket_pos, bsize_t bucket_size) {
         file.seekg(bucket_pos, ios::beg);
         file.read( (char*) &(this->bsize), sizeof(bsize_t) );
         file.read( (char*) &(this->next_bucket), sizeof(pos_t) );
+        // Load to vector only valid data
         Record record;
         for (int i=0; i<bsize; i++) {
             file.read( (char*) &(record), sizeof(Record) );
             records.push_back(record);
         }
     }
-    void save_to_file(fstream &file, pos_t bucket_pos) {
+    void save_to_file(fstream &file, pos_t bucket_pos, bsize_t bucket_size) {
         file.seekp(bucket_pos, ios::beg);
         file.write( (char*) &(this->bsize), sizeof(bsize_t) );
         file.write( (char*) &(this->next_bucket), sizeof(pos_t) );
-        for (auto &record : records) {
+        // Write all to reserve space
+        Record record;
+        for (int i=0; i<bucket_size; i++) {
+            if (i<records.size()) {
+                record = records[i];
+            }
+            file.write( (char*) &(record), sizeof(Record) );
+        }
+    }
+
+    // DUPLICATE FOR OFSTREAM
+    void save_to_file(ofstream &file, pos_t bucket_pos, bsize_t bucket_size) {
+        file.seekp(bucket_pos, ios::beg);
+        file.write( (char*) &(this->bsize), sizeof(bsize_t) );
+        file.write( (char*) &(this->next_bucket), sizeof(pos_t) );
+        // Write all to reserve space
+        Record record;
+        for (int i=0; i<bucket_size; i++) {
+            if (i<records.size()) {
+                record = records[i];
+            }
             file.write( (char*) &(record), sizeof(Record) );
         }
     }
@@ -70,6 +91,8 @@ struct IndexRecord {
 
 class ExtensibleHash {
     private:
+        // Bucket size
+        bsize_t bucket_max_size;
         // Files
         filename_t filename_index;
         filename_t filename_data;
@@ -85,9 +108,27 @@ class ExtensibleHash {
         }
         // Index init
         void init_index() {
+            // Empty Buckets
+            Bucket empty_bucket{0,-1};
+            // Reserve buckets in data file
+            pos_t pos0, pos1;
+            ofstream data_file(filename_data, ios::binary | ios::trunc);
+            if (data_file.is_open()) {
+                // Write two copies of empty buckets
+                pos0=0;
+                empty_bucket.save_to_file(data_file, pos0, bucket_max_size);
+                pos1=data_file.tellp();
+                empty_bucket.save_to_file(data_file, pos1, bucket_max_size);
+                // Close file
+                data_file.close();
+            }
+            else {
+                data_file.close();
+                throw "Cant init";
+            }
             // One bucket with prefix=0. Another bucket with prefix=1.
-            IndexRecord init0{1,0,-1};
-            IndexRecord init1{1,1,-1};
+            IndexRecord init0{1,0,pos0};
+            IndexRecord init1{1,1,pos1};
             add_entry_index(init0);
             add_entry_index(init1);
         }
@@ -149,7 +190,104 @@ class ExtensibleHash {
     public:
         // Write new entry
         bool add(Record record) {
-            // TODO: add
+            // TODO: Add
+            // Get hash
+            auto key_hash = generate_hash(record.get_key());
+            // Search for matching bucket in index table
+            auto irecord = match_irecord(key_hash);
+            auto bucket_pos = irecord->bucket_pos;
+            Bucket bucket;
+            fstream data_file(filename_data, ios::binary | ios::out | ios::in);
+            if (data_file.is_open()){
+                // Load bucket
+                bucket.load_from_file(data_file, bucket_pos, bucket_max_size);
+                // Check if bucket is full
+                if (bucket.bsize == bucket_max_size){
+                    // FULL CASE:
+                    if (irecord->depth < max_depth) {
+                        // SPLIT
+                        // zro_sufix: 0+sufix (insert in old)
+                        // one_sufix: 1+sufix (insert in new)
+                        irecord->depth++; // Increase irecord depth by 1
+                        // Copy to new vectors
+                        vector<Record> zro_sufix;
+                        vector<Record> one_sufix;
+                        for (auto &rec : bucket.records) {
+                            auto rec_hash = generate_hash(rec.get_key());
+                            if ( validate_hash(rec_hash, irecord->sufix, irecord->depth ) ) {
+                                zro_sufix.push_back(rec);
+                            }
+                            else {
+                                one_sufix.push_back(rec);
+                            }
+                        }
+                        // Add new record 
+                        if ( validate_hash(key_hash, irecord->sufix, irecord->depth ) ) {
+                            zro_sufix.push_back(record);
+                        }
+                        else {
+                            one_sufix.push_back(record);
+                        }
+                        // Split irecord
+                        // Overwrite old bucket with 0+sufix
+                        bucket.records = zro_sufix;
+                        bucket.bsize = zro_sufix.size();
+                        // Create and WRITE new irecord-bucket pair for 1+sufix
+                        Bucket one_bucket;
+                        one_bucket.records = one_sufix;
+                        one_bucket.bsize = one_sufix.size();
+                        one_bucket.next_bucket = -1;
+                        // WRITE 
+                        data_file.seekp(0, ios::end); // Go to eof
+                        pos_t pos_new = data_file.tellp(); // Save pos
+                        one_bucket.save_to_file(data_file, pos_new, bucket_max_size); // Write at eof
+                        // New irecord
+                        sufix_t sufix_new = irecord->sufix + (1 << (irecord->depth-1));
+                        IndexRecord irecord_new{irecord->depth, sufix_new, pos_new};
+                        add_entry_index(irecord_new);
+                    }
+                    else {
+                        // OVERFLOW PAGE
+                        auto prev_bucket_pos = bucket_pos;
+                        bucket_pos = bucket.next_bucket;
+                        // Try to find and insert in an existing overflow page
+                        while (bucket_pos != -1) {
+                            bucket.load_from_file(data_file, bucket_pos, bucket_max_size);
+                            if (bucket.bsize != bucket_max_size) { break; }
+                            prev_bucket_pos = bucket_pos;
+                            bucket_pos = bucket.next_bucket;
+                        }
+                        // If none exist, create new Overflow page.
+                        if (bucket_pos == -1) {
+                            // In previous bucket, point to end of current file, where new page is created
+                            data_file.seekp(0, ios::end);
+                            pos_t bucket_pos = data_file.tellp();
+                            bucket.next_bucket = bucket_pos;
+                            bucket.save_to_file(data_file, prev_bucket_pos, bucket_max_size);
+                            // Init empty bucket
+                            Bucket empty_bucket{0,-1};
+                            bucket = empty_bucket;
+                        }
+                        // Insert normally
+                        bucket.records.push_back(record);
+                        bucket.bsize++;
+                    }
+                }
+                else {
+                    // NOTFULL CASE: Simple insert
+                    bucket.records.push_back(record);
+                    bucket.bsize++;
+                }
+                // Writeback bucket
+                bucket.save_to_file(data_file, bucket_pos, bucket_max_size);
+                data_file.close();
+            }
+            else {
+                // On fail to open: return false
+                data_file.close();
+                return false;
+            }
+            return true;
         }
         // Remove entry
         bool remove(T key) {
@@ -169,7 +307,7 @@ class ExtensibleHash {
             fstream data_file(filename_data, ios::binary | ios::in);
             if (data_file.is_open()){
                 while (bucket_pos != -1) {
-                    bucket.load_from_file(data_file, bucket_pos); // Read bucket
+                    bucket.load_from_file(data_file, bucket_pos, bucket_max_size); // Read bucket
                     // Search in bucket
                     for (auto &record :  bucket.records) {
                         if (record.get_key() == key) {
@@ -185,7 +323,6 @@ class ExtensibleHash {
         }
         // SearchRange entry
         vector<Record> rangeSearch(T begin_key, T end_key) {
-            // TODO: searchRange
             // Initialize return vector
             vector<Record> result_records;
             // Open file
@@ -197,7 +334,7 @@ class ExtensibleHash {
                     Bucket bucket;
                     // Search bucket and overflow pages    
                     while (bucket_pos != -1) {
-                        bucket.load_from_file(data_file, bucket_pos); // Read bucket
+                        bucket.load_from_file(data_file, bucket_pos, bucket_max_size); // Read bucket
                         // Search in bucket
                         for (auto &record :  bucket.records) {
                             if (record.get_key() >= begin_key && record.get_key() <= end_key) {
