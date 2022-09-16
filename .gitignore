@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+# DB data
+*.ind
+*.dat

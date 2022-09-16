@@ -15,25 +15,40 @@ typedef long long bsize_t;
 typedef string filename_t;
 
 
+
 //TODO: Record structure
 typedef string T;
 struct Record{
     char nombre[20];
     char apellido[20];
-    char codigo[4];
-    char carrera[35];
+    char codigo[10];
+    char carrera[10];
     int edad;
     int ciclo;
     int creditos;
+
+    void set_data(string _nombre, string _apellido, string _codigo, string _carrera, int _edad, int _ciclo, int _creditos){
+        strcpy(nombre, _nombre.c_str());
+        strcpy(apellido, _apellido.c_str());
+        strcpy(codigo, _codigo.c_str());
+        strcpy(carrera, _carrera.c_str());
+        edad = _edad;
+        ciclo = _ciclo;
+        creditos = _creditos;
+    }
+
+    void print_data(){
+        //
+    }
 
     void load_from_file(fstream &file) {
         file.read( (char*) nombre, sizeof(nombre) );
         file.read( (char*) apellido, sizeof(apellido) );
         file.read( (char*) codigo, sizeof(codigo) );
         file.read( (char*) carrera, sizeof(carrera) );
-        file.read( (char*) edad, sizeof(edad) );
-        file.read( (char*) ciclo, sizeof(ciclo) );
-        file.read( (char*) creditos, sizeof(creditos) );
+        file.read( (char*) &edad, sizeof(edad) );
+        file.read( (char*) &ciclo, sizeof(ciclo) );
+        file.read( (char*) &creditos, sizeof(creditos) );
     }
 
     void save_to_file(fstream &file) {
@@ -41,20 +56,26 @@ struct Record{
         file.write( (char*) apellido, sizeof(apellido) );
         file.write( (char*) codigo, sizeof(codigo) );
         file.write( (char*) carrera, sizeof(carrera) );
-        file.write( (char*) edad, sizeof(edad) );
-        file.write( (char*) ciclo, sizeof(ciclo) );
-        file.write( (char*) creditos, sizeof(creditos) );
+        file.write( (char*) &edad, sizeof(edad) );
+        file.write( (char*) &ciclo, sizeof(ciclo) );
+        file.write( (char*) &creditos, sizeof(creditos) );
     }
 
     // DUPLICATE FOR OFSTREAM
     void save_to_file(ofstream &file) {
+        if ( !file.is_open() ) {
+            cout << "NOT OPEN";
+        }
+        else {
+            cout << "IS OPEN";
+        }
         file.write( (char*) nombre, sizeof(nombre) );
         file.write( (char*) apellido, sizeof(apellido) );
         file.write( (char*) codigo, sizeof(codigo) );
         file.write( (char*) carrera, sizeof(carrera) );
-        file.write( (char*) edad, sizeof(edad) );
-        file.write( (char*) ciclo, sizeof(ciclo) );
-        file.write( (char*) creditos, sizeof(creditos) );
+        file.write( (char*) &edad, sizeof(edad) );
+        file.write( (char*) &ciclo, sizeof(ciclo) );
+        file.write( (char*) &creditos, sizeof(creditos) );
     }
 
     T get_key() {
@@ -94,8 +115,7 @@ struct Bucket {
     }
 
     // DUPLICATE FOR OFSTREAM
-    void save_to_file(ofstream &file, pos_t bucket_pos, bsize_t bucket_size) {
-        file.seekp(bucket_pos, ios::beg);
+    void save_to_file(ofstream &file, bsize_t bucket_size) {
         file.write( (char*) &(this->bsize), sizeof(bsize_t) );
         file.write( (char*) &(this->next_bucket), sizeof(pos_t) );
         // Write all to reserve space
@@ -153,9 +173,9 @@ class ExtensibleHash {
             if (data_file.is_open()) {
                 // Write two copies of empty buckets
                 pos0=0;
-                empty_bucket.save_to_file(data_file, pos0, bucket_max_size);
+                empty_bucket.save_to_file(data_file, bucket_max_size);
                 pos1=data_file.tellp();
-                empty_bucket.save_to_file(data_file, pos1, bucket_max_size);
+                empty_bucket.save_to_file(data_file, bucket_max_size);
                 // Close file
                 data_file.close();
             }
@@ -225,6 +245,16 @@ class ExtensibleHash {
             throw "NO MATCHING PREFIX";
         }
     public:
+        ExtensibleHash(filename_t filename, bsize_t bucket_size, depth_t depth) {
+            filename_data = filename + ".dat";
+            filename_index = filename + ".ind";
+            bucket_max_size = bucket_size;
+            max_depth = depth;
+            load_index();
+        }
+        ~ExtensibleHash() {
+            save_index();
+        }
         // Write new entry
         bool add(Record record) {
             // TODO: Add
@@ -423,3 +453,13 @@ class ExtensibleHash {
         }
 };
 
+
+// #include "ExtensibleHash.h"
+
+int main() {
+    filename_t filename  = "students_ehash";
+    ExtensibleHash ehash(filename, 2, 3);
+    Record r1;
+    r1.set_data("Rodrigo","Salazar","12345","CS",19,6,120);
+    ehash.add(r1);
+}
