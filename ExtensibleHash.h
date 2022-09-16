@@ -15,11 +15,15 @@ typedef long long bsize_t;
 typedef string filename_t;
 
 
-//CHANGE TO TEMPLATE
+//TODO: CHANGE TO TEMPLATE
 typedef int T;
 
 
 struct Record{
+    // TODO:
+    T get_key() {
+        return 1;
+    }
 };
 
 struct Bucket {
@@ -131,7 +135,17 @@ class ExtensibleHash {
         sufix_t generate_hash(T key) {
             return std::hash<T>()(key);
         }
-
+        // Get matching index record
+        IndexRecord* match_irecord(sufix_t key_hash){
+            for (auto &irecord : index_table) {
+                if (validate_hash(key_hash, irecord.sufix, irecord.depth)) {
+                    // Return pointer to matching record
+                    return &irecord;
+                }
+            }
+            // No match 
+            throw "NO MATCHING PREFIX";
+        }
     public:
         // Write new entry
         bool add(Record record) {
@@ -143,16 +157,60 @@ class ExtensibleHash {
         }
         // Search entry
         vector<Record> search(T key) {
-            // TODO: search
+            // Initialize return vector
+            vector<Record> result_records;
             // Get hash
             auto key_hash = generate_hash(key);
             // Search for matching bucket in index table
+            auto irecord = match_irecord(key_hash);
+            auto bucket_pos = irecord->bucket_pos;
+            Bucket bucket;
             // Search bucket and overflow pages
+            fstream data_file(filename_data, ios::binary | ios::in);
+            if (data_file.is_open()){
+                while (bucket_pos != -1) {
+                    bucket.load_from_file(data_file, bucket_pos); // Read bucket
+                    // Search in bucket
+                    for (auto &record :  bucket.records) {
+                        if (record.get_key() == key) {
+                            result_records.push_back(record);
+                        }
+                    }
+                    bucket_pos = bucket.next_bucket; // Point to next bucket pos
+                }
+            }
+            data_file.close();
             // Return
+            return result_records;
         }
         // SearchRange entry
         vector<Record> rangeSearch(T begin_key, T end_key) {
             // TODO: searchRange
+            // Initialize return vector
+            vector<Record> result_records;
+            // Open file
+            fstream data_file(filename_data, ios::binary | ios::in);
+            if (data_file.is_open()){
+                // Iterate over all buckets
+                for (auto &irecord : index_table ){
+                    auto bucket_pos = irecord.bucket_pos;
+                    Bucket bucket;
+                    // Search bucket and overflow pages    
+                    while (bucket_pos != -1) {
+                        bucket.load_from_file(data_file, bucket_pos); // Read bucket
+                        // Search in bucket
+                        for (auto &record :  bucket.records) {
+                            if (record.get_key() >= begin_key && record.get_key() <= end_key) {
+                                result_records.push_back(record);
+                            }
+                        }
+                        bucket_pos = bucket.next_bucket; // Point to next bucket pos
+                    }
+                }
+            }
+            data_file.close();
+            // Return
+            return result_records;
         }
 };
 
