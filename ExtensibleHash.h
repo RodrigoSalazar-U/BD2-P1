@@ -25,6 +25,25 @@ struct Bucket {
     bsize_t bsize;
     pos_t next_bucket;
     vector<Record> records;
+
+    void load_from_file(fstream &file, pos_t bucket_pos) {
+        file.seekg(bucket_pos, ios::beg);
+        file.read( (char*) &(this->bsize), sizeof(bsize_t) );
+        file.read( (char*) &(this->next_bucket), sizeof(pos_t) );
+        Record record;
+        for (int i=0; i<bsize; i++) {
+            file.read( (char*) &(record), sizeof(Record) );
+            records.push_back(record);
+        }
+    }
+    void save_to_file(fstream &file, pos_t bucket_pos) {
+        file.seekp(bucket_pos, ios::beg);
+        file.write( (char*) &(this->bsize), sizeof(bsize_t) );
+        file.write( (char*) &(this->next_bucket), sizeof(pos_t) );
+        for (auto &record : records) {
+            file.write( (char*) &(record), sizeof(Record) );
+        }
+    }
 };
 
 
@@ -42,10 +61,6 @@ struct IndexRecord {
         file.write( (char*) &(this->sufix), sizeof(sufix_t) );
         file.write( (char*) &(this->bucket_pos), sizeof(pos_t) );
     }
-    /*
-    Bucket* load_bucket() {
-
-    }*/
 };
 
 class ExtensibleHash {
@@ -92,7 +107,7 @@ class ExtensibleHash {
         }
         // Index save
         void save_index() {
-            ofstream out_index(filename_index, ios::trunc);
+            ofstream out_index(filename_index, ios::binary | ios::trunc);
             if (out_index.is_open()) {
                 for (auto &irecord : index_table) {
                     irecord.save_to_ofile(out_index);
@@ -112,6 +127,7 @@ class ExtensibleHash {
         // Search entry
         vector<Record> search(T key) {
             // TODO: search
+            
         }
         // SearchRange entry
         vector<Record> rangeSearch(T begin_key, T end_key) {
