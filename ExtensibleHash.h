@@ -115,6 +115,17 @@ class ExtensibleHash {
             }
             out_index.close();
         }
+        // Compare Hash
+        bool validate_hash(sufix_t hash, sufix_t sufix, depth_t depth) {
+            for (int i = 0; i<depth; i++) {
+                sufix_t hash_bit = hash%2; hash = hash/2; // Extract last bit
+                sufix_t sufix_bit = sufix%2; sufix = sufix/2; // Extract last bit
+                if (hash_bit != sufix_bit) {
+                    return false;
+                }
+            }
+            return true;
+        }
     public:
         // Write new entry
         bool add(Record record) {
@@ -127,7 +138,7 @@ class ExtensibleHash {
         // Search entry
         vector<Record> search(T key) {
             // TODO: search
-            
+
         }
         // SearchRange entry
         vector<Record> rangeSearch(T begin_key, T end_key) {
