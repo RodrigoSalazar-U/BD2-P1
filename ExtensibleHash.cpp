@@ -189,7 +189,8 @@ class ExtensibleHash {
             }
             else {
                 data_file.close();
-                throw "Cant init";
+                cout << "[ERROR]: Cant Init Index File" << endl;
+                exit(2);
             }
             // One bucket with prefix=0. Another bucket with prefix=1.
             IndexRecord init0{1,0,pos0};
@@ -229,7 +230,8 @@ class ExtensibleHash {
         // Compare Hash
         bool validate_hash(sufix_t key_hash, sufix_t sufix, depth_t depth) {
             for (int i = 0; i<depth; i++) {
-                sufix_t key_hash_bit = key_hash%2; key_hash = key_hash/2; // Extract last bit
+                // Standerize modulo operation: (a % n + n) % n [Guarantees always positive]
+                sufix_t key_hash_bit = (key_hash%2 + 2) %2; key_hash = key_hash/2; // Extract last bit
                 sufix_t sufix_bit = sufix%2; sufix = sufix/2; // Extract last bit
                 if (key_hash_bit != sufix_bit) {
                     return false;
@@ -250,7 +252,8 @@ class ExtensibleHash {
                 }
             }
             // No match 
-            throw "NO MATCHING PREFIX";
+            cout << "[ERROR]: No matching prefix" <<endl;
+            exit(2);
         }
         #ifdef DEBUG_SHOW_INDEX
         void show_index() {
@@ -295,8 +298,6 @@ class ExtensibleHash {
                 // Check if bucket is full
                 if (bucket.bsize == bucket_max_size){
                     // FULL CASE
-                    cout << "IRECORD DEPTH" << irecord->depth;
-                    cout << "MAX DEPTH" << max_depth;
                     if (irecord->depth < max_depth) {
                         #ifdef DEBUG_ADD_TREE
                         cout << "[DEBUG]: Branch add::SPLIT" << endl;
@@ -540,20 +541,31 @@ class ExtensibleHash {
 int main() {
     filename_t filename  = "students_ehash";
     ExtensibleHash ehash(filename, 2, 3);
+    // SAMPLE DATA:
+    Record r1,r2,r3,r4,r5,r6;
+    r1.set_data("Rodrigo","Salazar","11111","CS",19,6,120);
+    r2.set_data("Luis","Ponce","11112","CS",20,7,130);
+    r3.set_data("Diego","Guerra","11113","DS",21,8,140);
+    r4.set_data("Arleth","Ivhy","11114","EE",22,9,150);
+    r5.set_data("Juan","Sara","11115","EI",23,10,160);    
+    r6.set_data("Eduardo","Arrozpide","11116","EQ",24,11,170);    
     // INSERT:
-    Record r1;
-    r1.set_data("Rodrigo","Salazar","12345","CS",19,6,120);
-    ehash.add(r1);
-    // READ
-    vector<Record> readdata;
-    readdata = ehash.search("Rodrigo");
-    if (readdata.size()){
-        for (auto &r : readdata) {
-            r.print_data();
-            cout << endl;
-        }
+    vector<Record> sampledata {r1,r2,r3,r4,r5,r6};
+    for (auto &r : sampledata) {
+        ehash.add(r);
     }
-    else {
-        cout << "NOT FOUND";
+    // READ:
+    vector<Record> readdata;
+    for (auto &r : sampledata) {
+        readdata = ehash.search(r.get_key());
+        if (readdata.size()){
+            for (auto &rd : readdata) {
+                rd.print_data();
+                cout << endl;
+            }
+        }
+        else {
+            cout << "NOT FOUND";
+        }
     }
 }

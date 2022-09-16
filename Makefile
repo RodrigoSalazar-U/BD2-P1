@@ -5,6 +5,7 @@ EHASH_DB = students_ehash
 
 ehash:
 	$(CC) $(CFLAGS) $(EHASH).cpp -o $(EHASH).out
+ehash-rerun: ehash-drop ehash-clean ehash-run
 ehash-run: ehash
 	./$(EHASH).out
 ehash-drop:
