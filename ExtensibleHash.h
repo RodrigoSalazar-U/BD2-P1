@@ -109,11 +109,11 @@ class ExtensibleHash {
         bool remove(T key) {
             // TODO: remove
         }
-        // Remove entry
+        // Search entry
         vector<Record> search(T key) {
             // TODO: search
         }
-        // Remove entry
+        // SearchRange entry
         vector<Record> rangeSearch(T begin_key, T end_key) {
             // TODO: searchRange
         }
