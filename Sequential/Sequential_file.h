@@ -12,8 +12,8 @@ class Sequential_File{
         string sequential_file_name;
         string aux_file_name;
         string header_file_name;
-        unsigned int registros_ordenados;
-        unsigned int registros_desordenados;
+        long registros_ordenados;
+        long registros_desordenados;
         int registros_anadidos = 0;
 
         unsigned long get_file_size(string file){
@@ -27,7 +27,7 @@ class Sequential_File{
         }
 
         void iniciar_sequential(){
-            ifstream input(this->file_name, ios::in | ios::app | ios::binary);
+            ifstream input(this->file_name, ios::in | ios::binary);
             ofstream sequential(this->sequential_file_name, ios::out | ios::binary);
 
             if(!input or !sequential){
@@ -61,7 +61,7 @@ class Sequential_File{
         }
 
         Estudiante read(string file, long pos){
-            ifstream filexd(file, ios::in);
+            fstream filexd(file, ios::in | ios::out | ios::binary);
             if(!filexd){
                 cout<<"ERROR FUNCION READ"<<endl;
             }
@@ -73,7 +73,7 @@ class Sequential_File{
         }
 
         void write(Estudiante record, string file, long pos){
-            ofstream filexd(file, ios::out);
+            fstream filexd(file, ios::in | ios::out | ios::binary);
             if(!filexd){
                 cout<<"ERROR FUNCION WRITE"<<endl;
             }
@@ -94,7 +94,7 @@ class Sequential_File{
         }
 
         long read_header(){
-            ifstream header(this->header_file_name, ios::in | ios::binary);
+            fstream header(this->header_file_name, ios::in| ios::out | ios::binary);
             if(!header){
                 cout<<"ERROR FUNCION READ_HEADER"<<endl;
             }
@@ -106,7 +106,7 @@ class Sequential_File{
         }
 
         void write_header(long pos){
-            ofstream header(this->header_file_name, ios::out | ios::binary);
+            fstream header(this->header_file_name, ios::in | ios::out | ios::binary);
             if(!header){
                 cout<<"ERROR FUNCION WRITE_HEADER"<<endl;
             }
@@ -116,8 +116,8 @@ class Sequential_File{
         }
 
         void rebuild(unsigned long registros_totales){
-            fstream sequential(this->sequential_file_name, ios::app | ios::binary);
-            fstream aux(this->aux_file_name, ios::out);
+            fstream sequential(this->sequential_file_name, ios::in | ios::binary);
+            fstream aux(this->aux_file_name, ios::out | ios::binary);
 
             if(!sequential or !aux){
                 cout<<"ERROR FUNCION REBUILD PARTE 1"<<endl;
@@ -128,14 +128,14 @@ class Sequential_File{
             while(record.next != -2){
                 aux.write((char*)& record, sizeof(Estudiante));
                 record = this->read(this->sequential_file_name, record.next);
-                record.print();
+                //record.print();
             }
             aux.write((char*)& record, sizeof(Estudiante));
             sequential.close();
             aux.close();
 
             sequential.open(this->sequential_file_name, ios::out | ios::binary);
-            aux.open(this->aux_file_name, ios::app | ios::binary | ios::in);
+            aux.open(this->aux_file_name, ios::in | ios::binary);
 
             if(!sequential or !aux){
                 cout<<"ERROR FUNCION REBUILD PARTE 2"<<endl;
@@ -343,7 +343,7 @@ class Sequential_File{
             return record;
         }
     public:
-    Sequential_File() = default;
+    Sequential_File() {};
     
     Sequential_File(string fileName, string sequentialFile){
         this->file_name = fileName;
@@ -363,7 +363,7 @@ class Sequential_File{
 
     vector<Estudiante> load(){
         vector<Estudiante> records;
-        fstream sequential(this->sequential_file_name, ios::in | ios::app);
+        fstream sequential(this->sequential_file_name, ios::in | ios::binary);
 
         if(!sequential){
                 cout<<"ERROR FUNCION LOAD"<<endl;
@@ -375,7 +375,6 @@ class Sequential_File{
                 records.push_back(record);
             }
         }
-
         return records;
     }
 
@@ -422,7 +421,7 @@ class Sequential_File{
 
     Estudiante search(int codigo){
         Estudiante base = this->search_file_ordenado(codigo);
-        cout<<base.codigo<<endl;
+        //cout<<base.codigo<<endl;
 
         if(base.codigo == codigo){
             return base;
@@ -447,7 +446,7 @@ class Sequential_File{
             }
         }
 
-        cout<<"Busqueda fuera de rango de alcanze"<<endl;
+        cout<<"Busqueda fuera de rango de alcance"<<endl;
         return Estudiante();
     }
 };
