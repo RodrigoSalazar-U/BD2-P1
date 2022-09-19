@@ -26,7 +26,7 @@ int main(){
     //cout<<"-------------------DUDA---------------"<<endl;
     //seq.print_duda();
     //cout<<"-------------------EMPIEZA EL SEARCH---------------"<<endl;
-    //Estudiante es = seq.search(15);
+    Estudiante es = seq.search(11);
     //cout<<"-------------------TERMINO EL SEARCH---------------"<<endl;
-    //es.print();
+    es.print();
 }

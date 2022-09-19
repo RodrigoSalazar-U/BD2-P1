@@ -61,7 +61,7 @@ class Sequential_File{
         }
 
         Estudiante read(string file, long pos){
-            ifstream filexd(file, ios::app | ios::binary);
+            ifstream filexd(file, ios::in);
             if(!filexd){
                 cout<<"ERROR FUNCION READ"<<endl;
             }
@@ -73,7 +73,7 @@ class Sequential_File{
         }
 
         void write(Estudiante record, string file, long pos){
-            ofstream filexd(file, ios::app | ios::binary);
+            ofstream filexd(file, ios::out);
             if(!filexd){
                 cout<<"ERROR FUNCION WRITE"<<endl;
             }
@@ -94,7 +94,7 @@ class Sequential_File{
         }
 
         long read_header(){
-            ifstream header(this->header_file_name, ios::app | ios::binary);
+            ifstream header(this->header_file_name, ios::in | ios::binary);
             if(!header){
                 cout<<"ERROR FUNCION READ_HEADER"<<endl;
             }
@@ -106,7 +106,7 @@ class Sequential_File{
         }
 
         void write_header(long pos){
-            ofstream header(this->header_file_name, ios::app | ios::binary);
+            ofstream header(this->header_file_name, ios::out | ios::binary);
             if(!header){
                 cout<<"ERROR FUNCION WRITE_HEADER"<<endl;
             }
@@ -313,7 +313,7 @@ class Sequential_File{
 
         Estudiante search_file_ordenado(int codigo_busqueda){
             long ini = 0;
-            long end = registros_ordenados + registros_anadidos;
+            long end = registros_ordenados - 1;
             long mid;
             Estudiante record;
             //cout<<"VALOR END: "<<end<<endl;
@@ -389,34 +389,34 @@ class Sequential_File{
         if(base.prev == -1 and record.codigo < base.codigo){ //Insertar al inicio
             cout<<"Insertando al inicio"<<endl;
             this->insertar_inicio(record);
-            this->registros_anadidos+=2;
+            //this->registros_anadidos+=2;
         }
         else if(base.next == -2){ //Insertar al final
             cout<<"Insertando al final"<<endl;
             this->insertar_final(record);
-            this->registros_anadidos+=2;
+            //this->registros_anadidos+=2;
         }
         else{
             if(base.codigo > record.codigo){
                 cout<<"Buscando base previo"<<endl;
                 base = this->get_prev_estudiante(base);
-                this->registros_anadidos+=2;
+                //this->registros_anadidos+=2;
             }
             if(base.next < registros_ordenados){ //El base apunta a un file ordenado
                 cout<<"Insert Basico"<<endl;
                 this->insert_basico(base,record);
-                this->registros_anadidos+=2;
+                //this->registros_anadidos+=2;
             }
             else{ //Apunta a file desordenado
                 cout<<"Insert en registros desordenados"<<endl;
                 this->insertar_registros_desordenados(base,record);
-                this->registros_anadidos+=2;
+                //this->registros_anadidos+=2;
             }
         }
         if(++registros_desordenados == 5){
             cout<<"Rebuild"<<endl;
             this->rebuild_insertar();
-            this->registros_anadidos = 0;
+            //this->registros_anadidos = 0;
         }
     }
 
