@@ -449,6 +449,33 @@ class Sequential_File{
         cout<<"Busqueda fuera de rango de alcance"<<endl;
         return Estudiante();
     }
+
+    vector<Estudiante> range_search(int key1, int key2){
+        vector<Estudiante> result;
+
+        if(key1 > key2){
+            cout<<"Por favor, introduce un intervalo valido"<<endl;
+            return result;
+        }
+
+        Estudiante current = this->search_file_ordenado(key1); //Buscamos el key correspondiente o el mas cercano a este
+
+        if(current.prev != -1){ //El registro encontrado no esta al inicio del file
+            if(current.codigo > key1){ //Si el resultado de la busqueda mas cercana es mayor al key, entonces solo basta obtener el previo
+                current = this->get_prev_estudiante(current);
+            }
+        }
+
+        while(true){
+            if(current.codigo >= key1 and current.codigo <= key2){ //Si esta entre el key1 y key2 lo metemos en el vector
+                result.push_back(current);
+            }
+            if(current.codigo > key2 or current.next == -2){ //Si ya sobrepaso el ID del key2 o llego al final del archivo
+                return result;
+            }
+            current = this->read(this->sequential_file_name, current.next);
+        }
+    }
 };
 
 /*
