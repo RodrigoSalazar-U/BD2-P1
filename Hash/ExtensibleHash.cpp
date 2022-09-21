@@ -8,14 +8,14 @@
 
 // Comentar o descomentar para Activar/Desactivar mensajes de Debug
 
-#define DEBUG_ACTIONS // Show start and end of actions
-#define DEBUG_ADD_TREE // Show add decision tree
-#define DEBUG_SHOW_INDEX // Show index at start of actions
+//#define DEBUG_ACTIONS // Show start and end of actions
+//#define DEBUG_ADD_TREE // Show add decision tree
+//#define DEBUG_SHOW_INDEX // Show index at start of actions
 //#define DEBUG_SEARCH_TREE // Show data of search tree
-#define DEBUG_INSERT_OVERFLOW // Show data of overflow pages creation
-#define DEBUG_INSERT_WRITEBACK // Show data of bucket writeback
-#define DEBUG_RANGESEARCH_STEP // Show rangesearch vector data in each step (bucket)
-#define DEBUG_SPLIT_RECORDS // Show records after split
+//#define DEBUG_INSERT_OVERFLOW // Show data of overflow pages creation
+//#define DEBUG_INSERT_WRITEBACK // Show data of bucket writeback
+//#define DEBUG_RANGESEARCH_STEP // Show rangesearch vector data in each step (bucket)
+//#define DEBUG_SPLIT_RECORDS // Show records after split
 
 using namespace std;
 
@@ -479,6 +479,7 @@ class ExtensibleHash {
                         }
                     }
                     bucket.records = res;
+                    bucket.bsize = res.size();
                     // Writeback bucket
                     bucket.save_to_file(data_file, bucket_pos, bucket_max_size);
                     // Point to next bucket pos
@@ -638,6 +639,8 @@ int main() {
             cout << "NOT FOUND" << endl;
         }
     }
+    // REMOVE 
+    ehash.remove(r5.get_key());
     // READ RANGE:
     vector<Record> readdatarange;
     // NOTE: Por las operaciones si se tiene una subcadena, esta siempre se considera estrictamente menor
