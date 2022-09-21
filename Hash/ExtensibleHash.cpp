@@ -639,8 +639,6 @@ int main() {
             cout << "NOT FOUND" << endl;
         }
     }
-    // REMOVE 
-    ehash.remove(r5.get_key());
     // READ RANGE:
     vector<Record> readdatarange;
     // NOTE: Por las operaciones si se tiene una subcadena, esta siempre se considera estrictamente menor
@@ -656,5 +654,76 @@ int main() {
     }
     else {
         cout << "NOT FOUND" << endl;
+    }
+    // INSERT REPEATED
+    cout << "INSERT REPEATED" <<endl;
+    ehash.add(r1);
+    ehash.add(r1);
+    ehash.add(r1);    
+    for (auto &r : sampledata) {
+        cout << "Exact Search results (" << r.get_key() << "):" << endl;
+        readdata = ehash.search(r.get_key());
+        if (readdata.size()){
+            for (auto &rd : readdata) {
+                rd.print_data();
+                cout << endl;
+            }
+        }
+        else {
+            cout << "NOT FOUND" << endl;
+        }
+    }
+    // REMOVE
+    cout << "REMOVE" <<endl;
+    ehash.remove(r1.get_key());
+    for (auto &r : sampledata) {
+        cout << "Exact Search results (" << r.get_key() << "):" << endl;
+        readdata = ehash.search(r.get_key());
+        if (readdata.size()){
+            for (auto &rd : readdata) {
+                rd.print_data();
+                cout << endl;
+            }
+        }
+        else {
+            cout << "NOT FOUND" << endl;
+        }
+    } 
+    // REINSERT
+    cout << "REINSERT" <<endl;
+    ehash.add(r1);
+    for (auto &r : sampledata) {
+        cout << "Exact Search results (" << r.get_key() << "):" << endl;
+        readdata = ehash.search(r.get_key());
+        if (readdata.size()){
+            for (auto &rd : readdata) {
+                rd.print_data();
+                cout << endl;
+            }
+        }
+        else {
+            cout << "NOT FOUND" << endl;
+        }
+    } 
+        // INSERT REPEATED
+    cout << "REINSERT REPEATED" <<endl;
+    ehash.add(r1);
+    ehash.add(r1);
+    ehash.add(r1); 
+    ehash.add(r1);
+    ehash.add(r1);
+    ehash.add(r1);    
+    for (auto &r : sampledata) {
+        cout << "Exact Search results (" << r.get_key() << "):" << endl;
+        readdata = ehash.search(r.get_key());
+        if (readdata.size()){
+            for (auto &rd : readdata) {
+                rd.print_data();
+                cout << endl;
+            }
+        }
+        else {
+            cout << "NOT FOUND" << endl;
+        }
     }
 }
