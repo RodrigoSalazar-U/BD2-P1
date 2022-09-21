@@ -7,11 +7,15 @@
 #include <functional>
 
 // Comentar o descomentar para Activar/Desactivar mensajes de Debug
+
 #define DEBUG_ACTIONS // Show start and end of actions
 #define DEBUG_ADD_TREE // Show add decision tree
 #define DEBUG_SHOW_INDEX // Show index at start of actions
-#define DEBUG_SEARCH_TREE // Show data of search tree
+//#define DEBUG_SEARCH_TREE // Show data of search tree
 #define DEBUG_INSERT_OVERFLOW // Show data of overflow pages creation
+#define DEBUG_INSERT_WRITEBACK // Show data of bucket writeback
+#define DEBUG_RANGESEARCH_STEP // Show rangesearch vector data in each step (bucket)
+#define DEBUG_SPLIT_RECORDS // Show records after split
 
 using namespace std;
 
@@ -100,11 +104,13 @@ struct Bucket {
         file.read( (char*) &(this->bsize), sizeof(bsize_t) );
         file.read( (char*) &(this->next_bucket), sizeof(pos_t) );
         // Load to vector only valid data
+        vector<Record> tmp;
         Record record;
         for (int i=0; i<bsize; i++) {
             record.load_from_file(file);
-            records.push_back(record);
+            tmp.push_back(record);
         }
+        records = tmp;
     }
     void save_to_file(fstream &file, pos_t bucket_pos, bsize_t bucket_size) {
         file.seekp(bucket_pos, ios::beg);
@@ -321,16 +327,21 @@ class ExtensibleHash {
                                 one_sufix.push_back(rec);
                             }
                         }
-
-                        // Add new record 
-                        /*
-                        if ( validate_hash(key_hash, irecord->sufix, irecord->depth ) ) {
-                            zro_sufix.push_back(record);
+                        #ifdef DEBUG_SPLIT_RECORDS
+                        cout << "[DEBUG]: Split Record records:" << endl;
+                        cout << "[DEBUG]: > Zro bucket records" << endl;
+                        for (auto &rec : zro_sufix) {
+                            cout << "[DEBUG]: -";
+                            rec.print_data();
+                            cout << endl;
                         }
-                        else {
-                            one_sufix.push_back(record);
+                        cout << "[DEBUG]: > One bucket records" << endl;
+                        for (auto &rec : one_sufix) {
+                            cout << "[DEBUG]: -";
+                            rec.print_data();
+                            cout << endl;
                         }
-                        */
+                        #endif
                         // Split irecord
                         // Overwrite old bucket with 0+sufix
                         bucket.records = zro_sufix;
@@ -344,6 +355,7 @@ class ExtensibleHash {
                         data_file.seekp(0, ios::end); // Go to eof
                         pos_t pos_new = data_file.tellp(); // Save pos
                         one_bucket.save_to_file(data_file, pos_new, bucket_max_size); // Write at eof
+                        bucket.save_to_file(data_file, bucket_pos, bucket_max_size); // Overwite old bucket in file
                         // New irecord
                         sufix_t sufix_new = irecord->sufix + (1 << (irecord->depth-1));
                         IndexRecord irecord_new{irecord->depth, sufix_new, pos_new};
@@ -366,6 +378,15 @@ class ExtensibleHash {
                             prev_bucket_pos = bucket_pos;
                             bucket_pos = bucket.next_bucket;
                         }
+                        #ifdef DEBUG_INSERT_OVERFLOW
+                        cout << "[DEBUG]: Bucket size: " << bucket.bsize  << ", pos: " << bucket_pos << endl;
+                        cout << "[DEBUG]: Bucket real size: " << bucket.records.size() << ", pos: " << bucket_pos << endl;
+                        for (auto &rec : bucket.records) {
+                            cout << "[DEBUG]: -";
+                            rec.print_data();
+                            cout << endl;
+                        }
+                        #endif
                         // If none exist, create new Overflow page.
                         if (bucket_pos == -1) {
                             // In previous bucket, point to end of current file, where new page is created
@@ -386,6 +407,15 @@ class ExtensibleHash {
                         // Insert normally
                         bucket.records.push_back(record);
                         bucket.bsize++;
+                        #ifdef DEBUG_INSERT_OVERFLOW
+                        cout << "[DEBUG]: Bucket size: " << bucket.bsize  << ", pos: " << bucket_pos << endl;
+                        cout << "[DEBUG]: Bucket real size: " << bucket.records.size()  << ", pos: " << bucket_pos << endl;
+                        for (auto &rec : bucket.records) {
+                            cout << "[DEBUG]: -";
+                            rec.print_data();
+                            cout << endl;
+                        }
+                        #endif
                     }
                 }
                 else {
@@ -397,7 +427,14 @@ class ExtensibleHash {
                     bucket.bsize++;
                 }
                 // Writeback bucket
+                #ifdef DEBUG_INSERT_WRITEBACK
                 cout << "[DEBUG]: Writeback Bucket next_bucket" << bucket.next_bucket << ", pos: " << bucket_pos  << endl;
+                for (auto &rec : bucket.records) {
+                    cout << "[DEBUG]: -";
+                    rec.print_data();
+                    cout << endl;
+                }
+                #endif
                 bucket.save_to_file(data_file, bucket_pos, bucket_max_size);
                 data_file.close();
             }
@@ -540,6 +577,14 @@ class ExtensibleHash {
                                 result_records.push_back(record);
                             }
                         }
+                        #ifdef DEBUG_RANGESEARCH_STEP
+                        cout << "[DEBUG]: Result in step (bucket_pos=" << bucket_pos << "):" <<endl;
+                        for (auto &rec : result_records) {
+                            cout << "[DEBUG]: -";
+                            rec.print_data();
+                            cout << endl;
+                        }
+                        #endif
                         bucket_pos = bucket.next_bucket; // Point to next bucket pos
                     }
                 }
