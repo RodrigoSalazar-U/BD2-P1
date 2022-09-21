@@ -1,6 +1,6 @@
 CC = g++
 CFLAGS = -g -Wno-int-to-pointer-cast
-EHASH = ExtensibleHash
+EHASH = Hash/ExtensibleHash
 EHASH_DB = students_ehash
 
 ehash:

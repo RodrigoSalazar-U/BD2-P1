@@ -10,6 +10,8 @@
 #define DEBUG_ACTIONS // Show start and end of actions
 #define DEBUG_ADD_TREE // Show add decision tree
 #define DEBUG_SHOW_INDEX // Show index at start of actions
+#define DEBUG_SEARCH_TREE // Show data of search tree
+#define DEBUG_INSERT_OVERFLOW // Show data of overflow pages creation
 
 using namespace std;
 
@@ -319,13 +321,16 @@ class ExtensibleHash {
                                 one_sufix.push_back(rec);
                             }
                         }
+
                         // Add new record 
+                        /*
                         if ( validate_hash(key_hash, irecord->sufix, irecord->depth ) ) {
                             zro_sufix.push_back(record);
                         }
                         else {
                             one_sufix.push_back(record);
                         }
+                        */
                         // Split irecord
                         // Overwrite old bucket with 0+sufix
                         bucket.records = zro_sufix;
@@ -343,6 +348,9 @@ class ExtensibleHash {
                         sufix_t sufix_new = irecord->sufix + (1 << (irecord->depth-1));
                         IndexRecord irecord_new{irecord->depth, sufix_new, pos_new};
                         add_entry_index(irecord_new);
+                        // Add record recursievly
+                        data_file.close();
+                        add(record);
                     }
                     else {
                         #ifdef DEBUG_ADD_TREE
@@ -362,12 +370,18 @@ class ExtensibleHash {
                         if (bucket_pos == -1) {
                             // In previous bucket, point to end of current file, where new page is created
                             data_file.seekp(0, ios::end);
-                            pos_t bucket_pos = data_file.tellp();
+                            bucket_pos = data_file.tellp();
                             bucket.next_bucket = bucket_pos;
                             bucket.save_to_file(data_file, prev_bucket_pos, bucket_max_size);
+                            #ifdef DEBUG_INSERT_OVERFLOW
+                            cout << "[DEBUG]: Original Bucket next_bucket: " << bucket.next_bucket << ", pos: " << prev_bucket_pos << endl;
+                            #endif
                             // Init empty bucket
                             Bucket empty_bucket{0,-1};
                             bucket = empty_bucket;
+                            #ifdef DEBUG_INSERT_OVERFLOW
+                            cout << "[DEBUG]: Overflow Bucket next_bucket" << bucket.next_bucket << ", pos: " << bucket_pos  << endl;
+                            #endif
                         }
                         // Insert normally
                         bucket.records.push_back(record);
@@ -383,6 +397,7 @@ class ExtensibleHash {
                     bucket.bsize++;
                 }
                 // Writeback bucket
+                cout << "[DEBUG]: Writeback Bucket next_bucket" << bucket.next_bucket << ", pos: " << bucket_pos  << endl;
                 bucket.save_to_file(data_file, bucket_pos, bucket_max_size);
                 data_file.close();
             }
@@ -465,6 +480,10 @@ class ExtensibleHash {
             // Search for matching bucket in index table
             auto irecord = match_irecord(key_hash);
             auto bucket_pos = irecord->bucket_pos;
+            #ifdef DEBUG_SEARCH_TREE
+            cout << "[DEBUG]: Search in irecord: " << irecord->sufix << endl;
+            cout << "[DEBUG]: Bucket pos: " << bucket_pos << endl;
+            #endif
             Bucket bucket;
             // Search bucket and overflow pages
             fstream data_file(filename_data, ios::binary | ios::in);
@@ -478,6 +497,9 @@ class ExtensibleHash {
                         }
                     }
                     bucket_pos = bucket.next_bucket; // Point to next bucket pos
+                    #ifdef DEBUG_SEARCH_TREE
+                    cout << "[DEBUG]: Next bucket pos: " << bucket_pos << endl;
+                    #endif
                 }
             }
             #ifdef DEBUG_ACTIONS
@@ -553,6 +575,7 @@ int main() {
     // INSERT:
     vector<Record> sampledata {r1,r2,r3,r4,r5,r6};
     for (auto &r : sampledata) {
+        cout << "Insert (" << r.get_key() << ") " << endl;
         ehash.add(r);
     }
     // READ EXACT:
