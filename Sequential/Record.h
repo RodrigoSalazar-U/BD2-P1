@@ -26,7 +26,11 @@ struct Estudiante{
     }
 
     void print(){
-        cout<<this->codigo<<" "<<this->sexo<<" "<<this->nombre<<" "<<this->apellido<<" "<<this->edad<<" "<<this->carrera<<" "<<this->ciclo<<" ";
+        cout<<this->codigo<<","<<this->sexo<<","<<this->nombre<<","<<this->apellido<<","<<this->edad<<","<<this->carrera<<","<<this->ciclo<<","<<this->prev<<","<<this->next;
         cout<<endl;
+    }
+
+    string print_csv(){
+        return to_string(this->codigo)+","+this->sexo+","+this->nombre+","+this->apellido+","+to_string(this->edad)+","+this->carrera+","+to_string(this->ciclo)+","+to_string(this->prev)+","+to_string(this->next)+"\n";
     }
 };

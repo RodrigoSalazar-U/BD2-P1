@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.2.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css">
+  <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+  <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
+
+  <script type="text/javascript" src="static/codigo.js"></script>
+</head>
+<body>
+
+<div class="container">
+	<h2>Table</h2>
+	<p>The .table-responsive class creates a responsive table which will scroll horizontally on small devices (under 768px). When viewing on anything larger than 768px wide, there is no difference:</p>                                                                                      
+	<table id="example" class="table table-striped" style="width:100%">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Position</th>
+				<th>Office</th>
+				<th>Age</th>
+				<th>Start date</th>
+				<th>Salary</th>
+				<th>Salary2</th>
+				<th>Salary3</th>
+				<th>Salary3</th>
+
+			</tr>
+		</thead>
+		<tbody>
+			{% for row in csv %}
+				<tr>
+					{% for col in row.split(",") %}
+						<td>{{ col }}</td>
+					{% endfor %}
+				</tr>
+			{% endfor %}
+		</tbody>
+		<tfoot>
+			<tr>
+				<th>Name</th>
+				<th>Position</th>
+				<th>Office</th>
+				<th>Age</th>
+				<th>Start date</th>
+				<th>Salary</th>
+				<th>Salary2</th>
+				<th>Salary3</th>
+			</tr>
+		</tfoot>
+	</table>
+  </div>
+</div>
+
+</body>
+</html>

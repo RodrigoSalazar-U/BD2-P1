@@ -124,9 +124,10 @@ class Sequential_File{
             }
 
             Estudiante record = this->read(this->sequential_file_name, this->pos_primer_registro());
-            record.print();
+            //record.print();
             while(record.next != -2){
                 aux.write((char*)& record, sizeof(Estudiante));
+
                 record = this->read(this->sequential_file_name, record.next);
                 //record.print();
             }
@@ -145,6 +146,9 @@ class Sequential_File{
             long current_prev = -1;
 
             while(aux.read((char*)& record, sizeof(Estudiante))){
+                if (record.prev == -3){
+                    continue;
+                }
                 record.next = current_next == registros_totales ? -2 : current_next++;
                 record.prev = current_prev++;
                 sequential.write((char*)& record, sizeof(Estudiante));
@@ -262,9 +266,22 @@ class Sequential_File{
         void rebuild_insertar(){
             unsigned long total_registros = get_file_size(this->sequential_file_name) / sizeof(Estudiante);
             this->rebuild(total_registros);
-            registros_ordenados += 5;
+            registros_ordenados += registros_desordenados;
             registros_desordenados = 0;
         }
+
+        void rebuild_delete(){
+            unsigned long total_registros = get_file_size(this->sequential_file_name) / sizeof(Estudiante);
+           
+            this->rebuild(--total_registros);
+            //cout<<"TOTAL DE REGISTROS "<< total_registros<<endl;
+
+            registros_ordenados += registros_desordenados-1;
+            registros_desordenados = 0;
+
+        }
+
+        
 
         //Recordemos que en el AUX FILE los registros estan desordenados, pero conectados de tal manera que logicamente estan ordenados
         void insertar_registros_desordenados(Estudiante base, Estudiante record){
@@ -361,6 +378,16 @@ class Sequential_File{
             cout<<"PREV: "<<record.prev<<endl;
         }
 
+    void select_all(vector<Estudiante> recibido){
+        std::ofstream myfile;
+        myfile.open ("example.csv");
+        for (auto val : recibido){
+            myfile<<val.print_csv();
+        }
+        myfile.close();
+
+    }
+
     vector<Estudiante> load(){
         vector<Estudiante> records;
         fstream sequential(this->sequential_file_name, ios::in | ios::binary);
@@ -419,6 +446,30 @@ class Sequential_File{
         }
     }
 
+    void Delete(int codigo){
+        Estudiante base = this->search_file_ordenado(codigo);
+        //this->rebuild_insertar();
+        if(base.codigo == codigo){
+            if(base.prev == -1){
+                Estudiante temp = this->read(this->sequential_file_name, base.next);
+                base.prev = -3;
+                this->write(base,this->sequential_file_name,temp.prev);
+            }
+            else{
+                Estudiante temp = this->read(this->sequential_file_name, base.prev);
+                base.prev = -3;
+                this->write(base,this->sequential_file_name,temp.next);
+            }
+        this->rebuild_delete();
+
+        } 
+        else{
+            cout<<"Estas queriendo borrar un codigo inexistente"<<endl;
+            return;
+
+        }
+    }
+
     Estudiante search(int codigo){
         Estudiante base = this->search_file_ordenado(codigo);
         //cout<<base.codigo<<endl;
@@ -449,6 +500,8 @@ class Sequential_File{
         cout<<"Busqueda fuera de rango de alcance"<<endl;
         return Estudiante();
     }
+
+
 
     vector<Estudiante> range_search(int key1, int key2){
         vector<Estudiante> result;

@@ -10,7 +10,30 @@ void print_vec(vector<Estudiante> vec){
 
 //LOS REGISTROS DEL DATA SET DEBEN DE ESTAR ORDENADOS
 
-int main(){
+int main(int argc, char **argv){
+	int i;
+
+
+    if(argc>=2){
+        
+        if(string(argv[1])=="-s"){
+            if(argc==3){
+                cout<<stoi(string(argv[2]))<<endl;
+            }
+            else if(argc==4){
+                cout<<stoi(string(argv[2]))<<endl;
+                cout<<stoi(string(argv[3]))<<endl;
+            }
+        }
+        else if(string(argv[1])=="-p"){
+        }
+        else if(string(argv[1])=="-d"){
+            if(argc==3){
+                cout<<stoi(string(argv[2]))<<endl;
+            }
+        }
+    }
+
     Sequential_File seq("Sequential/Estudiantes.bin", "Sequential/SequentialEstudiante.bin");
     seq.insert(Estudiante(11,"Masculino","Juan","Sara",19,"Industrial",3));
     seq.insert(Estudiante(12,"Masculino","Alonso","Junco",29,"CS",6));
@@ -30,4 +53,17 @@ int main(){
     vector<Estudiante> vec = seq.range_search(14,21);
     print_vec(vec);
     cout<<"-------------------TERMINO EL RANGE SEARCH----------------"<<endl;
+    seq.Delete(4);
+    seq.Delete(13);
+
+    vector<Estudiante> vec2 = seq.load();
+    cout<<"-------------------TERMINO EL DELETE-------------------"<<endl;
+    seq.insert(Estudiante(19,"Femenino","Valeria","Pruebas",33,"Matematica",8));
+
+
+    vector<Estudiante> vec3 = seq.load();
+    print_vec(vec3);
+
+
+    seq.select_all(seq.load());
 }
