@@ -8,8 +8,54 @@ void print_vec(vector<Estudiante> vec){
     }
 }
 
-//LOS REGISTROS DEL DATA SET DEBEN DE ESTAR ORDENADOS
+/*
+1,51720,Virginia,Norton,2020,0,4,36
+2,51185,Virginia,Tazewell,2020,0,9,37
+4,53019,Washington,Ferry,2020,0,1,48
+*/
 
+int main(){
+    Sequential_File seq("Sequential/Estudiantes.bin", "Sequential/SequentialEstudiante.bin");
+    /*
+    seq.insert(Estudiante(5,51720,"Virginia","Norton",2020,0,4,36));
+    seq.insert(Estudiante(6,51185,"Virginia","Tazewell",2020,0,9,37));
+    seq.insert(Estudiante(7,53019,"Washington","Ferry",2020,0,1,48));
+    seq.insert(Estudiante(8,54023,"West Virginia","Grant",2020,0,16,39));
+    vector<Estudiante> estudiantes = seq.load();
+    print_vec(estudiantes);
+    cout<<"-------------------EMPIEZA EL SEARCH---------------"<<endl;
+    Estudiante es = seq.search(2);
+    es.print();
+    cout<<"-------------------TERMINO EL SEARCH---------------"<<endl;
+    //cout<<"-------------------EMPIEZA EL RANGE SEARCH---------------"<<endl;
+    //vector<Estudiante> vec = seq.range_search(14,21);
+    //print_vec(vec);
+    //cout<<"-------------------TERMINO EL RANGE SEARCH----------------"<<endl;
+    seq.delete_record(2);
+    seq.delete_record(4);
+    vector<Estudiante> vec2 = seq.load();
+    cout<<"-------------------TERMINO EL DELETE-------------------"<<endl;
+    seq.insert(Estudiante(9,54047,"West Virginia","McDowell",2020,0,6,37));
+    vector<Estudiante> vec3 = seq.load();
+    print_vec(vec3);
+    */
+   //     seq.insert(Estudiante(4,54047,"West Virginia","McDowell",2020,0,6,37));
+    //        seq.insert(Estudiante(2,54047,"West Virginia","McDowell",2020,0,6,37));
+    //            seq.insert(Estudiante(3,54047,"West Virginia","McDowell",2020,0,6,37));
+    //                seq.insert(Estudiante(8,54047,"West Virginia","McDowell",2020,0,6,37));
+      //                  seq.insert(Estudiante(11,54047,"West Virginia","McDowell",2020,0,6,37));
+        //              seq.insert(Estudiante(15,54047,"West Virginia","McDowell",2020,0,6,37));
+    seq.delete_record(10);
+    vector<Estudiante> res = seq.range_search(6,11);
+    print_vec(res);
+    cout << "---" << endl;    
+    vector<Estudiante> vec3 = seq.load();
+        vector<Estudiante> estudiantes = seq.load();
+    print_vec(estudiantes);
+}
+
+//LOS REGISTROS DEL DATA SET DEBEN DE ESTAR ORDENADOS
+/*
 int main(int argc, char **argv){
 	int i;
 
@@ -85,4 +131,4 @@ int main(int argc, char **argv){
 
 
     //seq.select_all(seq.load());
-}
+//}

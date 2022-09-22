@@ -49,6 +49,19 @@ struct Estudiante{
         this->latitud=latitud;
     }
 
+    Estudiante(int codigo, long header_value){
+        this->codigo = codigo;
+        this->next = header_value;
+        this->codigo = 0;
+        this->FIPS_code = 0;
+        strcpy(this->estado, "null");
+        strcpy(this->date, "null");
+        this->totaldeath=0;
+        this->confirmedCase=0;
+        this->longitd=0;
+        this->latitud=0;
+    }
+
     Estudiante(string data){
         // Extract from string
         stringstream ss(data);

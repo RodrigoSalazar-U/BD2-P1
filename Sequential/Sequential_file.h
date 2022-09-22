@@ -183,6 +183,16 @@ class Sequential_File{
             header.close();
         }
 
+        long get_posicion_logica(Estudiante record){
+            if (record.prev == -1){ //Si es el primer registro
+                return 0; //retorna 0
+            }
+            else{
+                Estudiante record_prev = this->read(this->sequential_file_name, record.prev);
+                return record_prev.next;
+            }
+        }
+
         void rebuild(unsigned long registros_totales){
             fstream sequential(this->sequential_file_name, ios::in | ios::binary);
             fstream aux(this->aux_file_name, ios::out | ios::binary);
@@ -338,6 +348,7 @@ class Sequential_File{
             registros_desordenados = 0;
         }
 
+        /*
         void rebuild_delete(){
             unsigned long total_registros = get_file_size(this->sequential_file_name) / sizeof(Estudiante);
            
@@ -348,8 +359,42 @@ class Sequential_File{
             registros_desordenados = 0;
 
         }
+        */
 
-        
+        void actualizar_punteros_borrado(Estudiante borrado, long pos){
+            if(borrado.prev == -1){ //Si el registro a borrar es el primero
+                Estudiante borrado_next = this->read(this->sequential_file_name, borrado.next);
+                borrado_next.prev = -1; //Actualizo su siguiente registro y lo hago el primer registro
+                this->write(borrado_next,this->sequential_file_name,borrado.next);
+            }
+            else if(borrado.next == -2){ //Si el registro es el ultimo o su siguiente es un NULL
+                Estudiante borrado_prev = this->read(this->sequential_file_name, borrado.prev);
+                borrado_prev.next = -2; //Lo vuelvo su siguiente puntero al previo como null
+                this->write(borrado_prev,this->sequential_file_name,borrado.prev); //Lo sobreescribo
+            }
+            else{ //En cualquier posicion
+                Estudiante borrado_next = this->read(this->sequential_file_name,borrado.next); //Obtengo su siguiente
+                Estudiante borrado_prev = this->read(this->sequential_file_name,borrado.prev); //Obtengo su previo
+                borrado_prev.next = borrado.next; //actualizo punteros
+                borrado_next.prev = borrado.prev;
+                this->write(borrado_prev, this->sequential_file_name, borrado.prev); //sobreescribo
+                this->write(borrado_next, this->sequential_file_name, borrado.next);
+            }
+        }
+
+        void delete_registros_ordenados(long pos){
+            unsigned long total_register = get_file_size(this->sequential_file_name)/sizeof(Estudiante) - 1;
+            this->rebuild(total_register);
+            registros_ordenados = registros_ordenados + registros_desordenados;
+            registros_desordenados = 0;
+        }
+
+        void delete_registros_desordenados(long pos){ //Eliminacion tipo free list
+            long temp = read_header(); //leer el header
+            write_header(pos); //Actualizar con la posicion del registro borrado
+            Estudiante borrado(-1,temp); //Creamos un nuevo objeto que se identifique como borrado
+            this->write(borrado,this->sequential_file_name,pos); //Lo sobreescribimos en la posicion de borrado
+        }
 
         //Recordemos que en el AUX FILE los registros estan desordenados, pero conectados de tal manera que logicamente estan ordenados
         void insertar_registros_desordenados(Estudiante base, Estudiante record){
@@ -471,9 +516,7 @@ class Sequential_File{
 
         Estudiante record;
         while(sequential.read((char*)& record, sizeof(record))){
-            if(record.codigo != 0){
-                records.push_back(record);
-            }
+            records.push_back(record);
         }
         return records;
     }
@@ -519,6 +562,7 @@ class Sequential_File{
         }
     }
 
+    /*
     void Delete(int codigo){
         Estudiante base = this->search_file_ordenado(codigo);
         //this->rebuild_insertar();
@@ -542,6 +586,7 @@ class Sequential_File{
 
         }
     }
+    */
 
     Estudiante search(int codigo){
         Estudiante base = this->search_file_ordenado(codigo);
@@ -572,6 +617,30 @@ class Sequential_File{
 
         cout<<"Busqueda fuera de rango de alcance"<<endl;
         return Estudiante();
+    }
+
+    bool delete_record(int codigo){
+        Estudiante borrado = this->search(codigo);
+
+        if(borrado.codigo != codigo){
+            cout<<"Quieres borrar un registro inexistente"<<endl;
+            return false;
+        }
+
+        long borrado_pos = this->get_posicion_logica(borrado);
+        this->actualizar_punteros_borrado(borrado, borrado_pos);
+
+        if(borrado_pos < registros_ordenados){
+            this->delete_registros_ordenados(borrado_pos);
+            --registros_ordenados;
+            return true;
+        }
+        else{
+            this->delete_registros_desordenados(borrado_pos);
+            --registros_desordenados;
+            return true;
+        }
+        return false;
     }
 
     void write_csv(vector<Estudiante> recibido){
