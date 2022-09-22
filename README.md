@@ -138,7 +138,8 @@ Sintaxis de la función _search()_ en _Extensible Hashing_:
 vector<Record> search(T key)
 ```
 
-<img src="images/SEARCH.png" alt="search()"/>
+<img src="images/SEARCH .png" alt="search()"/>
+
 
 Sintaxis de la función _rangesearch()_ en _Sequential File_:
 
@@ -175,11 +176,11 @@ bool remove(T key)
 #### Interfaz Gráfica
 
 Se implementó la siguiente interfaz gráfica de usuario, en primer lugar se debe seleccionar que tipo de técnica de indexación se ejecutará:
-<img src="images/interfaz1.jpeg" alt="interfaz1" width="450px"/>
+<img src="images/interfaz1.jpeg" alt="interfaz1" width="600px"/>
 Luego debe insertar la query a consultar en la base de datos:
-<img src="images/interfaz2.jpeg" alt="interfaz2" width="450px"/>
+<img src="images/interfaz2.jpeg" alt="interfaz2" width="600px"/>
 Y al finalizar, la interfaz le muestra de manera amigable el resultado de su consulta:
-<img src="images/interfaz3.jpeg" alt="interfaz3" width="450px"/>
+<img src="images/interfaz3.jpeg" alt="interfaz3" width="600px"/>
 Cumpliendo con el objetivo de presentar la aplicación de estas técnicas en una interfaz gráfica amigable e intuitiva.
 
 #### Funcionalidad del Aplicativo
