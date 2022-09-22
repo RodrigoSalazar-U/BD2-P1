@@ -41,6 +41,11 @@ int main(int argc, char **argv){
                 seq.Delete(stoi(string(argv[2])));
             }
         }
+        else if(string(argv[1])=="-i"){
+            if(argc==3){
+                seq.insert(Estudiante(string(argv[2])));
+            }
+        }
     }
 
 
