@@ -15,19 +15,19 @@
 <body>
 
     <div class="principal">
+        <form id="form" action="#" method="POST">
 
-            <label for="exampleFormControlTextarea1"><h1>Choose Data Structure</h1></label>
-                <div class="group-buttons">
-                    <div class="buttons">
-                        <div class="buttonA">
-                            <a type="button" href="/sequential" name="dataset1" class="btn btn-light" id="dataset1" class="form-control">Sequential File</a>
-
-                        </div>
-                        <div class="buttonB">
-                            <a type="button" href="/hash" name="dataset2" class="btn btn-light" id="dataset2" class="form-control">Extendible Hashing</a>
-                        </div>
+            <div class="form-group" >
+            <label for="exampleFormControlTextarea1"><h1>Insert Query</h1></label>
+                
+                <div class="form-text-search">
+                    <div class="text-search">
+                        <textarea class="form-control" name="exampleFormControlTextarea1" id="exampleFormControlTextarea1" rows="3"></textarea>
                     </div>
-                </div>  
+                </div>
+            </div>
+            <button id="send_button" type="submit" class="btn btn-primary">Submit</button>
+        </form>
     </div>
 
 </body>

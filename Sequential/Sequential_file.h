@@ -513,11 +513,20 @@ class Sequential_File{
         if(!sequential){
                 cout<<"ERROR FUNCION LOAD"<<endl;
             }
-
         Estudiante record;
-        while(sequential.read((char*)& record, sizeof(record))){
+        sequential.read((char*)& record, sizeof(record));
+        do{
             records.push_back(record);
-        }
+            sequential.seekg((record.next)*sizeof(record));
+            sequential.read((char*)& record, sizeof(record));
+        }while(record.next!=-2);
+        sequential.seekg((record.next)*sizeof(record));
+        sequential.read((char*)& record, sizeof(record));
+        records.push_back(record);
+
+        /*while(sequential.read((char*)& record, sizeof(record))){
+            records.push_back(record);
+        }*/
         return records;
     }
 

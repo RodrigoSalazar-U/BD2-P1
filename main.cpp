@@ -14,8 +14,51 @@ void print_vec(vector<Estudiante> vec){
 4,53019,Washington,Ferry,2020,0,1,48
 */
 
-int main(){
+int main(int argc, char **argv){
+ 
+	int i;
+
     Sequential_File seq("Sequential/Estudiantes.bin", "Sequential/SequentialEstudiante.bin");
+
+
+    if(argc>=2){
+        
+        if(string(argv[1])=="-s"){
+            if(argc==3){
+                //cout<<stoi(string(argv[2]))<<endl;
+                Estudiante es = seq.search(stoi(string(argv[2])));
+                seq.write_csv(es);
+            }
+            else if(argc==4){
+                vector<Estudiante> vec = seq.range_search(stoi(string(argv[2])),stoi(string(argv[3])));
+                seq.write_csv(vec);
+                //cout<<stoi(string(argv[2]))<<endl;
+                //cout<<stoi(string(argv[3]))<<endl;
+            }
+        }
+        else if(string(argv[1])=="-p"){
+            vector<Estudiante> vec3 = seq.load();
+            seq.write_csv(vec3);
+        }
+        else if(string(argv[1])=="-d"){
+            if(argc==3){
+                //cout<<stoi(string(argv[2]))<<endl;
+                seq.delete_record(stoi(string(argv[2])));
+                vector<Estudiante> vec3 = seq.load();
+                seq.write_csv(vec3);
+            }
+        }
+        else if(string(argv[1])=="-i"){
+            if(argc==3){
+                seq.insert(Estudiante(string(argv[2])));
+                vector<Estudiante> vec3 = seq.load();
+                seq.write_csv(vec3);
+            }
+        }
+    }
+
+ 
+ 
     /*
     seq.insert(Estudiante(5,51720,"Virginia","Norton",2020,0,4,36));
     seq.insert(Estudiante(6,51185,"Virginia","Tazewell",2020,0,9,37));
@@ -45,13 +88,14 @@ int main(){
     //                seq.insert(Estudiante(8,54047,"West Virginia","McDowell",2020,0,6,37));
       //                  seq.insert(Estudiante(11,54047,"West Virginia","McDowell",2020,0,6,37));
         //              seq.insert(Estudiante(15,54047,"West Virginia","McDowell",2020,0,6,37));
-    seq.delete_record(10);
+    /*seq.delete_record(10);
     vector<Estudiante> res = seq.range_search(6,11);
     print_vec(res);
     cout << "---" << endl;    
     vector<Estudiante> vec3 = seq.load();
-        vector<Estudiante> estudiantes = seq.load();
+    vector<Estudiante> estudiantes = seq.load();
     print_vec(estudiantes);
+*/
 }
 
 //LOS REGISTROS DEL DATA SET DEBEN DE ESTAR ORDENADOS

@@ -12,7 +12,7 @@ using namespace std;
 //PRIIMERO EJECUTAR ESTOOOOOOOOOOOOOOOO
 
 void convertir(){
-    fstream file("dataset.csv", ios::in);
+    fstream file("datatest_kaggle_100.csv", ios::in);
     string fila;
 
     vector<Estudiante> estudiantes;

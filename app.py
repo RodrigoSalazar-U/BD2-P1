@@ -27,12 +27,100 @@ def index():
   else:
     return render_template("home.html")
 
-@app.route("/alumnos")
-def alumnos():
-  process = subprocess.call(["./a.out", "-p"], shell=False)
-  #print("Acabo")
-  with open("InputFiles/dataset.csv", encoding='utf-8', errors='ignore') as file:
+
+
+@app.route("/hash", methods=["GET","POST"])
+def hash():
+
+  if request.method=="POST":
+
+    valor = request.form.get('exampleFormControlTextarea1')
+    if(valor.find('*')>0 and valor.find('=')<0 and valor.find("between")<0 and valor.find("and")<0 and valor.find("delete")<0):
+
+      process = subprocess.call(["./a.out", "-p"], shell=False)
+      with open("InputFiles/dataset.csv", encoding='utf-8', errors='ignore') as file:
+        return render_template("table.html", csv=file)
+
+    if(valor.find("=")>0 and valor.find("between")<0 and valor.find("delete")<0):
+      equal_value = valor.split("=")[1][:-1]
+      print("EL VALOR ES",valor)
+      print("EL EQUAL ES",equal_value)
+      process = subprocess.call(["./a.out", "-s", equal_value])
+      with open("InputFiles/dataset.csv", encoding='utf-8', errors='ignore') as file:
+        return render_template("table.html", csv=file)
+
+
+    if(valor.find("between")>0 and valor.find("and")>0 and valor.find("delete")<0) :
+      print(first,last)
+      process = subprocess.call(["./a.out", "-s", first , last])
+      with open("InputFiles/dataset.csv", encoding='utf-8', errors='ignore') as file:
+        return render_template("table.html", csv=file)    
+    if(valor.find("delete")>=0):
+      first = valor.split("=")[1][:-1]
+      print(first)
+      process = subprocess.call(["./a.out", "-d", first])
+      with open("InputFiles/dataset.csv", encoding='utf-8', errors='ignore') as file:
+        return render_template("table.html", csv=file)
+
+    if(valor.find("insert")>=0):
+
+      first = valor.split("(")[1][:-2]
+      print(first)
+      process = subprocess.call(["./a.out", "-i", first])
+      with open("InputFiles/dataset.csv", encoding='utf-8', errors='ignore') as file:
+        return render_template("table.html", csv=file)
     return render_template("table.html", csv=file)
+
+  else:
+    return render_template("sequential.html")
+
+
+
+
+@app.route("/sequential", methods=["GET","POST"])
+def sequential():
+
+  if request.method=="POST":
+
+    valor = request.form.get('exampleFormControlTextarea1')
+    if(valor.find('*')>0 and valor.find('=')<0 and valor.find("between")<0 and valor.find("and")<0 and valor.find("delete")<0):
+
+      process = subprocess.call(["./a.out", "-p"], shell=False)
+      with open("InputFiles/dataset.csv", encoding='utf-8', errors='ignore') as file:
+        return render_template("table.html", csv=file)
+
+    if(valor.find("=")>0 and valor.find("between")<0 and valor.find("delete")<0):
+      equal_value = valor.split("=")[1][:-1]
+      print("EL VALOR ES",valor)
+      print("EL EQUAL ES",equal_value)
+      process = subprocess.call(["./a.out", "-s", equal_value])
+      with open("InputFiles/dataset.csv", encoding='utf-8', errors='ignore') as file:
+        return render_template("table.html", csv=file)
+
+
+    if(valor.find("between")>0 and valor.find("and")>0 and valor.find("delete")<0) :
+      print(first,last)
+      process = subprocess.call(["./a.out", "-s", first , last])
+      with open("InputFiles/dataset.csv", encoding='utf-8', errors='ignore') as file:
+        return render_template("table.html", csv=file)    
+    if(valor.find("delete")>=0):
+      first = valor.split("=")[1][:-1]
+      print(first)
+      process = subprocess.call(["./a.out", "-d", first])
+      with open("InputFiles/dataset.csv", encoding='utf-8', errors='ignore') as file:
+        return render_template("table.html", csv=file)
+
+    if(valor.find("insert")>=0):
+
+      first = valor.split("(")[1][:-2]
+      print(first)
+      process = subprocess.call(["./a.out", "-i", first])
+      with open("InputFiles/dataset.csv", encoding='utf-8', errors='ignore') as file:
+        return render_template("table.html", csv=file)
+    return render_template("table.html", csv=file)
+
+  else:
+    return render_template("sequential.html")
 
 
 
