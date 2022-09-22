@@ -4,6 +4,7 @@
 #include <cstring>
 #include <fstream>
 #include <string>
+#include <sstream>
 #include <functional>
 
 // Comentar o descomentar para Activar/Desactivar mensajes de Debug
@@ -35,6 +36,25 @@ struct Record{
     int edad;
     int ciclo;
     int creditos;
+
+    void set_data_from_string(string _params) {
+        stringstream ss(_params);
+        string _nombre;
+        string _apellido;
+        string _codigo;
+        string _carrera;
+        string _edad;
+        string _ciclo;
+        string _creditos;
+        getline(ss, _nombre, ',');
+        getline(ss, _apellido, ',');
+        getline(ss, _codigo, ',');
+        getline(ss, _carrera, ',');
+        getline(ss, _edad, ',');
+        getline(ss, _ciclo, ',');
+        getline(ss, _creditos, ',');
+        set_data(_nombre,_apellido,_codigo,_carrera, stoi(_edad), stoi(_ciclo), stoi(_creditos));
+    }
 
     void set_data(string _nombre, string _apellido, string _codigo, string _carrera, int _edad, int _ciclo, int _creditos){
         strcpy(nombre, _nombre.c_str());
@@ -607,7 +627,64 @@ class ExtensibleHash {
 
 // #include "ExtensibleHash.h"
 
-int main() {
+int main(int argc, char *argv[]) {
+    filename_t filename  = "students_ehash";
+    ExtensibleHash ehash(filename, 2, 3);
+    // GET ARGUMENTS
+    if (argc != 3) {
+        cout << "ERROR: INCORRECT ARGUMENTS FORMAT" << endl;
+        cout << "./ehash {function} {parameter(s)}" << endl << endl;
+        cout << "Functions      | Parameter(s)" << endl;
+        cout << "- add            field1,field2,...,fieldn" << endl;
+        cout << "- remove         key" << endl;
+        cout << "- search         key" << endl;
+        cout << "- rangeSearch    startkey,endkey" << endl;
+        return 1;
+    }
+    std::string input_function = argv[1];
+    std::string input_parameter = argv[2];
+
+    if (input_function=="add") {
+        Record record;
+        record.set_data_from_string(input_parameter);
+        bool result=ehash.add(record);
+        cout << result <<endl;
+    } else if (input_function=="remove") {
+        bool result = ehash.remove(input_parameter);
+        cout << result <<endl;
+    } else if (input_function=="search") {
+        vector<Record> readdata;
+        //cout << "Exact Search results (" <<input_parameter << "):" << endl;
+        readdata = ehash.search(input_parameter);
+        if (readdata.size()){
+            for (auto &rd : readdata) {
+                rd.print_data();
+                cout << endl;
+            }
+        }
+    } else if (input_function=="rangeSearch") {
+        stringstream ss(input_parameter);
+        string start_key;
+        string end_key;
+        getline(ss, start_key, ',');
+        getline(ss, end_key, ',');
+        vector<Record> readdatarange;
+        // NOTE: Por las operaciones si se tiene una subcadena, esta siempre se considera estrictamente menor
+        //cout << "Range Search results (" << start_key << "," << end_key << "):" << endl;
+        readdatarange = ehash.rangeSearch(start_key, end_key);
+        if (readdatarange.size()){
+            for (auto &rd : readdatarange) {
+                rd.print_data();
+                cout << endl;
+            }
+        }
+    } else {
+        cout << "UNKNOWN FUNCTION" << endl;
+    }
+
+
+    
+    /*
     filename_t filename  = "students_ehash";
     ExtensibleHash ehash(filename, 2, 3);
     // SAMPLE DATA:
@@ -726,4 +803,5 @@ int main() {
             cout << "NOT FOUND" << endl;
         }
     }
+    */
 }

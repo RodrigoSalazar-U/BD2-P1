@@ -362,7 +362,7 @@ class Sequential_File{
             }
             return record;
         }
-        
+
     public:
     Sequential_File() {};
     ~Sequential_File(){
