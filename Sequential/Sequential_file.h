@@ -118,7 +118,7 @@ class Sequential_File{
         void rebuild(unsigned long registros_totales){
             fstream sequential(this->sequential_file_name, ios::in | ios::binary);
             fstream aux(this->aux_file_name, ios::out | ios::binary);
-
+            fstream estudiantes(this->file_name,ios::in | ios::binary);
             if(!sequential or !aux){
                 cout<<"ERROR FUNCION REBUILD PARTE 1"<<endl;
             }
@@ -152,7 +152,10 @@ class Sequential_File{
                 record.next = current_next == registros_totales ? -2 : current_next++;
                 record.prev = current_prev++;
                 sequential.write((char*)& record, sizeof(Estudiante));
+                estudiantes.write((char*)& record, sizeof(Estudiante));
+
             }
+            estudiantes.close();
             sequential.close();
             aux.close();
         }
@@ -359,9 +362,13 @@ class Sequential_File{
             }
             return record;
         }
+        
     public:
     Sequential_File() {};
-    
+    ~Sequential_File(){
+        rebuild_insertar();
+    }
+
     Sequential_File(string fileName, string sequentialFile){
         this->file_name = fileName;
         this->sequential_file_name = sequentialFile;
@@ -378,9 +385,9 @@ class Sequential_File{
             cout<<"PREV: "<<record.prev<<endl;
         }
 
-    void select_all(vector<Estudiante> recibido){
+    void write_csv(vector<Estudiante> recibido){
         std::ofstream myfile;
-        myfile.open ("example.csv");
+        myfile.open ("InputFiles/dataset.csv");
         for (auto val : recibido){
             myfile<<val.print_csv();
         }
@@ -388,6 +395,13 @@ class Sequential_File{
 
     }
 
+    void write_csv(Estudiante recibido){
+        std::ofstream myfile;
+        myfile.open ("example.csv");
+        myfile<<recibido.print_csv();
+        myfile.close();
+
+    }
     vector<Estudiante> load(){
         vector<Estudiante> records;
         fstream sequential(this->sequential_file_name, ios::in | ios::binary);

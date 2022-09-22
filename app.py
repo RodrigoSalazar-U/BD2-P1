@@ -14,13 +14,19 @@ app = Flask(__name__)
 # (B) DEMO - READ CSV & GENERATE HTML TABLE
 @app.route("/")
 def index():
+  #process = subprocess.call("./a.out", shell=False)
+  #print("Acabo")
+  #with open("example.csv") as file:
+  return render_template("home.html")
+
+@app.route("/alumnos")
+def alumnos():
   process = subprocess.call("./a.out", shell=False)
   print("Acabo")
   with open("example.csv") as file:
     return render_template("table.html", csv=file)
 
 
- 
 
 # (C) START
 if __name__ == "__main__":

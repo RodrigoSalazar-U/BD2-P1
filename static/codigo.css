@@ -1,0 +1,37 @@
+.principal{
+    text-align: center;
+
+}
+.text-search{
+    width: 50%;
+
+}
+
+.buttonA{
+    width: 50%;
+
+}
+
+.buttonB{
+    width: 50%;
+}
+
+.group-buttons{
+    justify-content: center;
+    display: flex;
+
+}
+
+
+
+.buttons{
+    display: flex;
+    width: 50%;
+}
+
+.form-text-search{
+    display: flex;
+    justify-content: center;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}

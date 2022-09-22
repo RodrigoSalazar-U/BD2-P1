@@ -13,28 +13,9 @@ void print_vec(vector<Estudiante> vec){
 int main(int argc, char **argv){
 	int i;
 
-
-    if(argc>=2){
-        
-        if(string(argv[1])=="-s"){
-            if(argc==3){
-                cout<<stoi(string(argv[2]))<<endl;
-            }
-            else if(argc==4){
-                cout<<stoi(string(argv[2]))<<endl;
-                cout<<stoi(string(argv[3]))<<endl;
-            }
-        }
-        else if(string(argv[1])=="-p"){
-        }
-        else if(string(argv[1])=="-d"){
-            if(argc==3){
-                cout<<stoi(string(argv[2]))<<endl;
-            }
-        }
-    }
-
     Sequential_File seq("Sequential/Estudiantes.bin", "Sequential/SequentialEstudiante.bin");
+    
+    /*
     seq.insert(Estudiante(11,"Masculino","Juan","Sara",19,"Industrial",3));
     seq.insert(Estudiante(12,"Masculino","Alonso","Junco",29,"CS",6));
     seq.insert(Estudiante(13,"Femenino","Karla","Tarazona",7,"DS",7));
@@ -43,6 +24,35 @@ int main(int argc, char **argv){
     seq.insert(Estudiante(16,"Femenino","Alondra","Palacios",32,"Energia",10));
     seq.insert(Estudiante(17,"Masculino","Heider","Sanchez",4,"Electronica",7));
     seq.insert(Estudiante(18,"Femenino","Valeria","Gonzales",56,"Comunicaciones",8));
+    */
+
+    if(argc>=2){
+        
+        if(string(argv[1])=="-s"){
+            if(argc==3){
+                Estudiante es = seq.search(3);
+                seq.write_csv(es);
+            }
+            else if(argc==4){
+
+                vector<Estudiante> vec = seq.range_search(stoi(string(argv[2])),stoi(string(argv[3])));
+                seq.write_csv(vec);
+            }
+        }
+        else if(string(argv[1])=="-p"){
+            seq.write_csv(seq.load());
+        }
+        else if(string(argv[1])=="-d"){
+            if(argc==3){
+                seq.Delete(stoi(string(argv[2])));
+                seq.write_csv(seq.load());
+
+            }
+        }
+    }
+
+
+/*
     vector<Estudiante> estudiantes = seq.load();
     print_vec(estudiantes);
     cout<<"-------------------EMPIEZA EL SEARCH---------------"<<endl;
@@ -63,7 +73,6 @@ int main(int argc, char **argv){
 
     vector<Estudiante> vec3 = seq.load();
     print_vec(vec3);
+*/
 
-
-    seq.select_all(seq.load());
 }

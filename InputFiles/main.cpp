@@ -12,7 +12,7 @@ using namespace std;
 //PRIIMERO EJECUTAR ESTOOOOOOOOOOOOOOOO
 
 void convertir(){
-    fstream file("datatest.csv", ios::in);
+    fstream file("dataset.csv", ios::in);
     string fila;
 
     vector<Estudiante> estudiantes;
