@@ -79,9 +79,9 @@ Con esta operación se elimina un registro. El proceso para lograr este resultad
 
 |             | _SEQUENTIAL FILE_ | _EXTENDIBLE HASHING_ |
 | ----------- | ----------------- | -------------------- |
-| INSERCIÓN   | _O(1)_            | _O(1)_               |
+| INSERCIÓN   | _O(n)_            | _O(1)_               |
 | BÚSQUEDA    | _O(log N)_        | _O(n)_               |
-| ELIMINACIÓN | _O(1)_            | _O(1)_               |
+| ELIMINACIÓN | _O(n)_            | _O(1)_               |
 
 ## Resultados Experimentales
 
@@ -110,14 +110,63 @@ El análisis comparativo de las pruebas realizadas consta del tiempo de ejecuci�
 
 #### Gráfico Comparativo Inserción
 
+Sintaxis de la función _insert()_ en _Sequential File_:
+
+```sh
+void add(Record record)
+```
+
+Sintaxis de la función _insert()_ en _Extensible Hashing_:
+
+```sh
+bool add(Record record)
+```
+
 <img src="images/INSERT.png" alt="insert()"/>
 
 #### Gráfico Comparativo Búsqueda
 
+Sintaxis de la función _search()_ en _Sequential File_:
+
+```sh
+Record search(int key)
+```
+
+Sintaxis de la función _search()_ en _Extensible Hashing_:
+
+```sh
+vector<Record> search(T key)
+```
+
 <img src="images/SEARCH.png" alt="search()"/>
+
+Sintaxis de la función _rangesearch()_ en _Sequential File_:
+
+```sh
+vector<Record> range_search(int key1, int key2)
+```
+
+Sintaxis de la función _rangesearch()_ en _Extensible Hashing_:
+
+```sh
+vector<Record> range_search(T begin_key, T end_key)
+```
+
 <img src="images/RANGESEARCH.png" alt="rangesearch()"/>
 
 #### Gráfico Comparativo Eliminación
+
+Sintaxis de la función _delete()_ en _Sequential File_:
+
+```sh
+bool delete(int key)
+```
+
+Sintaxis de la función _delete()_ en _Sequential File_:
+
+```sh
+bool remove(T key)
+```
 
 <img src="images/DELETE.png" alt="delete()"/>
 
@@ -125,10 +174,14 @@ El análisis comparativo de las pruebas realizadas consta del tiempo de ejecuci�
 
 #### Interfaz Gráfica
 
-<img src="images/interfaz1.jpeg" alt="interfaz1"/>
-<img src="images/interfaz2.jpeg" alt="interfaz2"/>
-<img src="images/interfaz3.jpeg" alt="interfaz3"/>
+Se implementó la siguiente interfaz gráfica de usuario, en primer lugar se debe seleccionar que tipo de técnica de indexación se ejecutará:
+<img src="images/interfaz1.jpeg" alt="interfaz1" width="450px"/>
+Luego debe insertar la query a consultar en la base de datos:
+<img src="images/interfaz2.jpeg" alt="interfaz2" width="450px"/>
+Y al finalizar, la interfaz le muestra de manera amigable el resultado de su consulta:
+<img src="images/interfaz3.jpeg" alt="interfaz3" width="450px"/>
+Cumpliendo con el objetivo de presentar la aplicación de estas técnicas en una interfaz gráfica amigable e intuitiva.
 
 #### Funcionalidad del Aplicativo
 
-La presentacion final en video se encuentra en el siguiente [link](url).
+La presentación final en video se encuentra en el siguiente [link](url).
