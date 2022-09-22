@@ -12,7 +12,7 @@ using namespace std;
 //PRIIMERO EJECUTAR ESTOOOOOOOOOOOOOOOO
 
 void convertir(){
-    fstream file("dataset.csv", ios::in);
+    fstream file("datatest_kaggle_100.csv", ios::in);
     string fila;
 
     vector<Estudiante> estudiantes;
@@ -28,13 +28,19 @@ void convertir(){
             vec.push_back(cadena); //Pusheo la cadena a mi vector
         }
         estudiante.codigo = stoi(vec[0]);
-        strcpy(estudiante.sexo, vec.at(1).c_str()); 
-        strcpy(estudiante.nombre, vec.at(2).c_str()); 
+        estudiante.FIPS_code = stoi(vec[1]);
+        strcpy(estudiante.estado, vec.at(2).c_str()); 
+        strcpy(estudiante.date, vec.at(3).c_str()); 
+        estudiante.totaldeath = stoi(vec[4]);
+        estudiante.confirmedCase = stoi(vec[5]);
+        estudiante.longitd = stol(vec[6]);
+        estudiante.latitud = stol(vec[7]);
+/*
         strcpy(estudiante.apellido, vec.at(3).c_str()); 
-        estudiante.edad = stoi(vec[4]);
+        estudiante.edad = stol(vec[4]);
         strcpy(estudiante.carrera, vec.at(5).c_str()); 
-        estudiante.ciclo = stoi(vec[6]);
-
+        estudiante.ciclo = stol(vec[6]);
+*/
         estudiantes.push_back(estudiante);
     }
     file.close();

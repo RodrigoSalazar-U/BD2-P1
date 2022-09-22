@@ -15,28 +15,28 @@
 <body>
 
     <div class="principal">
-        <form>
+        <form id="form" action="#" method="POST">
 
             <div class="form-group" >
             <label for="exampleFormControlTextarea1"><h1>Insert Query</h1></label>
                 <div class="group-buttons">
                     <div class="buttons">
                         <div class="buttonA">
-                            <button type="button" class="btn btn-light" id="dataset1">Dataset1</button>
+                            <button type="button" name="dataset1" class="btn btn-light" id="dataset1" class="form-control">Sequential File</button>
 
                         </div>
                         <div class="buttonB">
-                            <button type="button" class="btn btn-light" id="dataset2">Dataset2</button>
+                            <button type="button" name="dataset2" class="btn btn-light" id="dataset2" class="form-control">Extendible Hashing</button>
                         </div>
                     </div>
                 </div>  
                 <div class="form-text-search">
                     <div class="text-search">
-                        <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                        <textarea class="form-control" name="exampleFormControlTextarea1" id="exampleFormControlTextarea1" rows="3"></textarea>
                     </div>
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button id="send_button" type="submit" class="btn btn-primary">Submit</button>
         </form>
     </div>
 

@@ -6,7 +6,10 @@
 #include <string>
 #include <sstream>
 #include <functional>
-
+#include <stdio.h>
+#include <chrono>
+#include <sys/time.h>
+#include <ctime>
 // Comentar o descomentar para Activar/Desactivar mensajes de Debug
 
 //#define DEBUG_ACTIONS // Show start and end of actions
@@ -29,6 +32,17 @@ typedef string filename_t;
 //TODO: Record structure
 typedef string T;
 struct Record{
+
+    int codigo;
+    int FIPS_code;
+    char estado[30];
+    char date[11];
+    int totaldeath;
+    int confirmedCase;
+    long longitd;
+    long latitud;
+
+/*
     char nombre[20];
     char apellido[20];
     char codigo[10];
@@ -36,80 +50,92 @@ struct Record{
     int edad;
     int ciclo;
     int creditos;
-
+*/
     void set_data_from_string(string _params) {
         stringstream ss(_params);
-        string _nombre;
-        string _apellido;
         string _codigo;
-        string _carrera;
-        string _edad;
-        string _ciclo;
-        string _creditos;
-        getline(ss, _nombre, ',');
-        getline(ss, _apellido, ',');
+        string _FIPS_code;
+        string _estado;
+        string _date;
+        string _totaldeath;
+        string _confirmedCase;
+        string _longitd;
+        string _latitud;
         getline(ss, _codigo, ',');
-        getline(ss, _carrera, ',');
-        getline(ss, _edad, ',');
-        getline(ss, _ciclo, ',');
-        getline(ss, _creditos, ',');
-        set_data(_nombre,_apellido,_codigo,_carrera, stoi(_edad), stoi(_ciclo), stoi(_creditos));
+        getline(ss, _FIPS_code, ',');
+        getline(ss, _estado, ',');
+        getline(ss, _date, ',');
+        getline(ss, _totaldeath, ',');
+        getline(ss, _confirmedCase, ',');
+        getline(ss, _longitd, ',');
+        getline(ss, _latitud, ',');
+
+        set_data(stoi(_codigo),stoi(_FIPS_code),_estado,_date, stoi(_totaldeath), stoi(_confirmedCase), stol(_longitd), stol(_latitud));
     }
 
-    void set_data(string _nombre, string _apellido, string _codigo, string _carrera, int _edad, int _ciclo, int _creditos){
-        strcpy(nombre, _nombre.c_str());
-        strcpy(apellido, _apellido.c_str());
-        strcpy(codigo, _codigo.c_str());
-        strcpy(carrera, _carrera.c_str());
-        edad = _edad;
-        ciclo = _ciclo;
-        creditos = _creditos;
+    void set_data(int _codigo, int _FIPS_code, string _estado, string _date, int _totaldeath, int _confirmedCase, long _longitd, long _latitud){
+        codigo = _codigo;
+        FIPS_code = _FIPS_code;
+        strcpy(estado, _estado.c_str());
+        strcpy(date, _date.c_str());
+        totaldeath = _totaldeath;
+        confirmedCase = _confirmedCase;
+        longitd = _longitd;
+        latitud = _latitud;
+
     }
 
     void print_data(){
-        cout << string(nombre) << " | "
-        << string(apellido) << " | "
-        << string(nombre) << " | "
-        << string(codigo) << " | "
-        << string(carrera) << " | "
-        << edad << " | "
-        << ciclo << " | "
-        << creditos;
+        cout << codigo<< " | "
+        << FIPS_code << " | "
+        << string(estado) << " | "
+        << string(date) << " | "
+        << totaldeath << " | "
+        << confirmedCase << " | "
+        << longitd << " | "
+        << latitud;
     }
 
     void load_from_file(fstream &file) {
-        file.read( (char*) nombre, sizeof(nombre) );
-        file.read( (char*) apellido, sizeof(apellido) );
-        file.read( (char*) codigo, sizeof(codigo) );
-        file.read( (char*) carrera, sizeof(carrera) );
-        file.read( (char*) &edad, sizeof(edad) );
-        file.read( (char*) &ciclo, sizeof(ciclo) );
-        file.read( (char*) &creditos, sizeof(creditos) );
+        file.read( (char*) &codigo, sizeof(codigo) );
+        file.read( (char*) &FIPS_code, sizeof(FIPS_code) );
+        file.read( (char*) estado, sizeof(estado) );
+        file.read( (char*) date, sizeof(date) );
+        file.read( (char*) &totaldeath, sizeof(totaldeath) );
+        file.read( (char*) &confirmedCase, sizeof(confirmedCase) );
+        file.read( (char*) &longitd, sizeof(longitd) );
+        file.read( (char*) &latitud, sizeof(latitud) );
+
     }
 
     void save_to_file(fstream &file) {
-        file.write( (char*) nombre, sizeof(nombre) );
-        file.write( (char*) apellido, sizeof(apellido) );
-        file.write( (char*) codigo, sizeof(codigo) );
-        file.write( (char*) carrera, sizeof(carrera) );
-        file.write( (char*) &edad, sizeof(edad) );
-        file.write( (char*) &ciclo, sizeof(ciclo) );
-        file.write( (char*) &creditos, sizeof(creditos) );
+        file.write( (char*) &codigo, sizeof(codigo) );
+        file.write( (char*) &FIPS_code, sizeof(FIPS_code) );
+        file.write( (char*) estado, sizeof(estado) );
+        file.write( (char*) date, sizeof(date) );
+        file.write( (char*) &totaldeath, sizeof(totaldeath) );
+        file.write( (char*) &confirmedCase, sizeof(confirmedCase) );
+        file.write( (char*) &longitd, sizeof(longitd) );
+        file.write( (char*) &latitud, sizeof(latitud) );
+
     }
 
     // DUPLICATE FOR OFSTREAM
     void save_to_file(ofstream &file) {
-        file.write( (char*) nombre, sizeof(nombre) );
-        file.write( (char*) apellido, sizeof(apellido) );
-        file.write( (char*) codigo, sizeof(codigo) );
-        file.write( (char*) carrera, sizeof(carrera) );
-        file.write( (char*) &edad, sizeof(edad) );
-        file.write( (char*) &ciclo, sizeof(ciclo) );
-        file.write( (char*) &creditos, sizeof(creditos) );
+        file.write( (char*) &codigo, sizeof(codigo) );
+        file.write( (char*) &FIPS_code, sizeof(FIPS_code) );
+        file.write( (char*) estado, sizeof(estado) );
+        file.write( (char*) date, sizeof(date) );
+        file.write( (char*) &totaldeath, sizeof(totaldeath) );
+        file.write( (char*) &confirmedCase, sizeof(confirmedCase) );
+        file.write( (char*) &longitd, sizeof(longitd) );
+        file.write( (char*) &latitud, sizeof(latitud) );
+
     }
 
     T get_key() {
-        return string(nombre);
+
+        return to_string(codigo);
     }
 
 };
@@ -629,7 +655,7 @@ class ExtensibleHash {
 
 int main(int argc, char *argv[]) {
     filename_t filename  = "students_ehash";
-    ExtensibleHash ehash(filename, 2, 3);
+    ExtensibleHash ehash(filename, 1024, 32);
     // GET ARGUMENTS
     if (argc != 3) {
         cout << "ERROR: INCORRECT ARGUMENTS FORMAT" << endl;
@@ -648,14 +674,26 @@ int main(int argc, char *argv[]) {
         Record record;
         record.set_data_from_string(input_parameter);
         bool result=ehash.add(record);
-        cout << result <<endl;
+        //cout << result <<endl;
     } else if (input_function=="remove") {
+        auto start = chrono::steady_clock::now();
+
         bool result = ehash.remove(input_parameter);
+
+        auto end = chrono::steady_clock::now();
+            
+        cout<<chrono::duration_cast<chrono::microseconds>(end - start).count()<<endl;
         cout << result <<endl;
     } else if (input_function=="search") {
         vector<Record> readdata;
         //cout << "Exact Search results (" <<input_parameter << "):" << endl;
+        auto start = chrono::steady_clock::now();
+
         readdata = ehash.search(input_parameter);
+
+        auto end = chrono::steady_clock::now();
+            
+        cout<<chrono::duration_cast<chrono::microseconds>(end - start).count()<<endl;
         if (readdata.size()){
             for (auto &rd : readdata) {
                 rd.print_data();
@@ -671,13 +709,19 @@ int main(int argc, char *argv[]) {
         vector<Record> readdatarange;
         // NOTE: Por las operaciones si se tiene una subcadena, esta siempre se considera estrictamente menor
         //cout << "Range Search results (" << start_key << "," << end_key << "):" << endl;
+        auto start = chrono::steady_clock::now();
+
         readdatarange = ehash.rangeSearch(start_key, end_key);
+        auto end = chrono::steady_clock::now();
+            
         if (readdatarange.size()){
             for (auto &rd : readdatarange) {
                 rd.print_data();
                 cout << endl;
             }
         }
+        cout<<chrono::duration_cast<chrono::microseconds>(end - start).count()<<endl;
+
     } else {
         cout << "UNKNOWN FUNCTION" << endl;
     }
