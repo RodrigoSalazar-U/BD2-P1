@@ -138,6 +138,17 @@ struct Record{
         return to_string(codigo);
     }
 
+    string print_csv() {        
+        return
+        to_string(codigo)+","+
+        to_string(FIPS_code)+","+
+        string(estado)+","+
+        string(date)+","+
+        to_string(totaldeath)+","+
+        to_string(confirmedCase)+","+
+        to_string(longitd)+","+
+        to_string(latitud)+"\n";
+    }
 };
 
 struct Bucket {
@@ -648,6 +659,39 @@ class ExtensibleHash {
             #endif
             return result_records;
         }
+        // Return all 
+        vector<Record> load() {
+            // Initialize return vector
+            vector<Record> result_records;
+            // Open file
+            fstream data_file(filename_data, ios::binary | ios::in);
+            if (data_file.is_open()){
+                // Iterate over all buckets
+                for (auto &irecord : index_table ){
+                    auto bucket_pos = irecord.bucket_pos;
+                    Bucket bucket;
+                    // Search bucket and overflow pages    
+                    while (bucket_pos != -1) {
+                        bucket.load_from_file(data_file, bucket_pos, bucket_max_size); // Read bucket
+                        // Search in bucket
+                        for (auto &record :  bucket.records) {
+                            result_records.push_back(record);
+                        }
+                        bucket_pos = bucket.next_bucket; // Point to next bucket pos
+                    }
+                }
+            }
+            data_file.close();
+            return result_records;
+        }
+        void write_csv(vector<Record> recibido){
+            std::ofstream myfile;
+            myfile.open ("Hash/dataset.csv");
+            for (auto val : recibido){
+                myfile<<val.print_csv();
+            }
+            myfile.close();
+        }
 };
 
 
@@ -657,7 +701,11 @@ int main(int argc, char *argv[]) {
     filename_t filename  = "students_ehash";
     ExtensibleHash ehash(filename, 1024, 32);
     // GET ARGUMENTS
-    if (argc != 3) {
+    if (argc == 2 && string(argv[1])=="print") {
+        ehash.write_csv(ehash.load());
+        return 0;
+    }
+    else if (argc != 3) {
         cout << "ERROR: INCORRECT ARGUMENTS FORMAT" << endl;
         cout << "./ehash {function} {parameter(s)}" << endl << endl;
         cout << "Functions      | Parameter(s)" << endl;
@@ -665,6 +713,7 @@ int main(int argc, char *argv[]) {
         cout << "- remove         key" << endl;
         cout << "- search         key" << endl;
         cout << "- rangeSearch    startkey,endkey" << endl;
+        cout << "- print" << endl;
         return 1;
     }
     std::string input_function = argv[1];
@@ -674,7 +723,9 @@ int main(int argc, char *argv[]) {
         Record record;
         record.set_data_from_string(input_parameter);
         bool result=ehash.add(record);
-        //cout << result <<endl;
+        cout << result <<endl;
+        ehash.write_csv(ehash.load());
+
     } else if (input_function=="remove") {
         auto start = chrono::steady_clock::now();
 
@@ -684,6 +735,8 @@ int main(int argc, char *argv[]) {
             
         cout<<chrono::duration_cast<chrono::microseconds>(end - start).count()<<endl;
         cout << result <<endl;
+        
+        ehash.write_csv(ehash.load());
     } else if (input_function=="search") {
         vector<Record> readdata;
         //cout << "Exact Search results (" <<input_parameter << "):" << endl;
@@ -694,12 +747,14 @@ int main(int argc, char *argv[]) {
         auto end = chrono::steady_clock::now();
             
         cout<<chrono::duration_cast<chrono::microseconds>(end - start).count()<<endl;
-        if (readdata.size()){
+        /*if (readdata.size()){
             for (auto &rd : readdata) {
                 rd.print_data();
                 cout << endl;
             }
         }
+        */
+        ehash.write_csv(readdata);
     } else if (input_function=="rangeSearch") {
         stringstream ss(input_parameter);
         string start_key;
@@ -714,14 +769,14 @@ int main(int argc, char *argv[]) {
         readdatarange = ehash.rangeSearch(start_key, end_key);
         auto end = chrono::steady_clock::now();
             
-        if (readdatarange.size()){
+        /*if (readdatarange.size()){
             for (auto &rd : readdatarange) {
                 rd.print_data();
                 cout << endl;
             }
-        }
+        }*/
         cout<<chrono::duration_cast<chrono::microseconds>(end - start).count()<<endl;
-
+        ehash.write_csv(readdatarange);
     } else {
         cout << "UNKNOWN FUNCTION" << endl;
     }
