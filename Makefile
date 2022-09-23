@@ -36,6 +36,6 @@ seqf-start: seqf-drop seqf
 
 
 drop: ehash-drop seqf-drop
-clean: ehash-clean seqf-clean
+clean: ehash-clean seqf-clean csv-clean
 clean-drop: clean drop
 
