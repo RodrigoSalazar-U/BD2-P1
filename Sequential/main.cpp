@@ -32,11 +32,12 @@ int main(int argc, char **argv){
                 #endif
 
                 Estudiante es = seq.search(stoi(string(argv[2])));
-                es.print();
+                
                 #ifdef TEST_TIMECHRONO
                 auto end = chrono::steady_clock::now();
                 cout<<chrono::duration_cast<chrono::microseconds>(end - start).count()<<endl;
                 #else
+                es.print();
                 seq.write_csv(es);
                 #endif
             }
@@ -46,6 +47,28 @@ int main(int argc, char **argv){
                 #endif
 
                 vector<Estudiante> vec = seq.range_search(stoi(string(argv[2])),stoi(string(argv[3])));
+
+                #ifdef TEST_TIMECHRONO
+                auto end = chrono::steady_clock::now();
+                cout<<chrono::duration_cast<chrono::microseconds>(end - start).count()<<endl;
+                #else
+                seq.write_csv(vec);
+                #endif
+            }
+        }
+        else if(string(argv[1])=="-rs"){
+            if(argc==3){
+                auto sarg2 = string(argv[2]);
+                stringstream ss(sarg2);
+                string start_key;
+                string end_key;
+                getline(ss, start_key, ',');
+                getline(ss, end_key, ',');
+                #ifdef TEST_TIMECHRONO
+                auto start = chrono::steady_clock::now();
+                #endif
+
+                vector<Estudiante> vec = seq.range_search(stoi(start_key),stoi(end_key));
 
                 #ifdef TEST_TIMECHRONO
                 auto end = chrono::steady_clock::now();

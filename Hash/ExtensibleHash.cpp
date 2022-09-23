@@ -31,7 +31,12 @@ typedef long long bsize_t;
 typedef string filename_t;
 
 //TODO: Record structure
-typedef string T;
+typedef int T;
+
+T stringToKey(string k) {
+    return stoi(k);
+}
+
 struct Record{
 
     int codigo;
@@ -71,7 +76,7 @@ struct Record{
         getline(ss, _longitd, ',');
         getline(ss, _latitud, ',');
 
-        set_data(stoi(_codigo),stoi(_FIPS_code),_estado,_date, stoi(_totaldeath), stoi(_confirmedCase), stol(_longitd), stol(_latitud));
+        set_data(stoi(_codigo),stoi(_FIPS_code),_estado,_date, stoi(_totaldeath), stoi(_confirmedCase), atol(_longitd.c_str()), atol(_latitud.c_str()));
     }
 
     void set_data(int _codigo, int _FIPS_code, string _estado, string _date, int _totaldeath, int _confirmedCase, long _longitd, long _latitud){
@@ -136,7 +141,7 @@ struct Record{
 
     T get_key() {
 
-        return to_string(codigo);
+        return (codigo);
     }
 
     string print_csv() {        
@@ -744,7 +749,7 @@ int main(int argc, char *argv[]) {
         auto start = chrono::steady_clock::now();
         #endif
 
-        bool result = ehash.remove(input_parameter);
+        bool result = ehash.remove(stringToKey( input_parameter));
 
         #ifdef TEST_TIMECHRONO
         auto end = chrono::steady_clock::now();
@@ -760,7 +765,7 @@ int main(int argc, char *argv[]) {
         auto start = chrono::steady_clock::now();
         #endif
         
-        readdata = ehash.search(input_parameter);
+        readdata = ehash.search(stringToKey( input_parameter));
         
         #ifdef TEST_TIMECHRONO
         auto end = chrono::steady_clock::now();
@@ -780,7 +785,7 @@ int main(int argc, char *argv[]) {
         auto start = chrono::steady_clock::now();
         #endif
 
-        readdatarange = ehash.rangeSearch(start_key, end_key);
+        readdatarange = ehash.rangeSearch(stringToKey( start_key),stringToKey( end_key));
 
         #ifdef TEST_TIMECHRONO
         auto end = chrono::steady_clock::now();

@@ -12,6 +12,7 @@ ADD_EHASH = ./add_ehash.sh
 ADD_SEQF = ./add_seqf.sh
 START_DATA = InputFiles/datatest_kaggle_100.csv
 
+build: ehash seqf
 ehash:
 	$(CC) $(CFLAGS) $(EHASH).cpp -o $(EHASH_EXE).out
 seqf:
