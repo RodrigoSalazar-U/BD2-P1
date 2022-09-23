@@ -31,23 +31,17 @@ def index():
 
 @app.route("/hash", methods=["GET","POST"])
 def hash():
-  print("GAAAAAAAAAAAAAAAA")
-
   if request.method=="POST":
-
     valor = request.form.get('exampleFormControlTextarea1')
     if(valor.find('*')>0 and valor.find('=')<0 and valor.find("between")<0 and valor.find("and")<0 and valor.find("delete")<0):
-
-      process = subprocess.call(["Hash/a.out", "-p"], shell=False)
-      with open("InputFiles/dataset.csv", encoding='utf-8', errors='ignore') as file:
+      process = subprocess.call(["./ehash.out", "print"], shell=False)
+      with open("CSV/ehash.csv", encoding='utf-8', errors='ignore') as file:
         return render_template("table.html", csv=file)
 
     if(valor.find("=")>0 and valor.find("between")<0 and valor.find("delete")<0):
       equal_value = valor.split("=")[1][:-1]
-      print("EL VALOR ES",valor)
-      print("EL EQUAL ES",equal_value)
-      process = subprocess.call(["Hash/a.out", "search", equal_value])
-      with open("Hash/dataset.csv", encoding='utf-8', errors='ignore') as file:
+      process = subprocess.call(["./ehash.out", "search", equal_value])
+      with open("CSV/ehash.csv", encoding='utf-8', errors='ignore') as file:
         return render_template("table.html", csv=file)
 
     #Between
@@ -55,18 +49,18 @@ def hash():
       #print(first,last)
       first = valor.split(" ")[-3]
       last = valor.split(" ")[-1][:-1]
-      juntar=str(first)+str(last)
+      juntar=first+","+last
       print(juntar)
-      process = subprocess.call(["Hash/a.out", "rangeSearch", juntar])
-      with open("Hash/dataset.csv", encoding='utf-8', errors='ignore') as file:
+      process = subprocess.call(["./ehash.out", "rangeSearch", juntar])
+      with open("CSV/ehash.csv", encoding='utf-8', errors='ignore') as file:
         return render_template("table.html", csv=file) 
 
     #Delete
     if(valor.find("delete")>=0):
       first = valor.split("=")[1][:-1]
       print(first)
-      process = subprocess.call(["Hash/a.out", "remove", first])
-      with open("Hash/dataset.csv", encoding='utf-8', errors='ignore') as file:
+      process = subprocess.call(["./ehash.out", "remove", first])
+      with open("CSV/ehash.csv", encoding='utf-8', errors='ignore') as file:
         return render_template("table.html", csv=file)
 
     # Insertar 
@@ -74,8 +68,8 @@ def hash():
       #print("ENTROOOOOO")
       first = valor.split("(")[1][:-2]
       #print(first)
-      process = subprocess.call(["Hash/a.out", "add", first])
-      with open("Hash/dataset.csv", encoding='utf-8', errors='ignore') as file:
+      process = subprocess.call(["./ehash.out", "add", first])
+      with open("CSV/ehash.csv", encoding='utf-8', errors='ignore') as file:
         return render_template("table.html", csv=file)
     return render_template("table.html", csv=file)
 
@@ -93,16 +87,16 @@ def sequential():
     valor = request.form.get('exampleFormControlTextarea1')
     if(valor.find('*')>0 and valor.find('=')<0 and valor.find("between")<0 and valor.find("and")<0 and valor.find("delete")<0):
 
-      process = subprocess.call(["./a.out", "-p"], shell=False)
-      with open("InputFiles/dataset.csv", encoding='utf-8', errors='ignore') as file:
+      process = subprocess.call(["./seqf.out", "-p"], shell=False)
+      with open("CSV/sequential.csv", encoding='utf-8', errors='ignore') as file:
         return render_template("table.html", csv=file)
 
     if(valor.find("=")>0 and valor.find("between")<0 and valor.find("delete")<0):
       equal_value = valor.split("=")[1][:-1]
       print("EL VALOR ES",valor)
       print("EL EQUAL ES",equal_value)
-      process = subprocess.call(["./a.out", "-s", equal_value])
-      with open("InputFiles/dataset.csv", encoding='utf-8', errors='ignore') as file:
+      process = subprocess.call(["./seqf.out", "-s", equal_value])
+      with open("CSV/sequential.csv", encoding='utf-8', errors='ignore') as file:
         return render_template("table.html", csv=file)
 
 
@@ -110,24 +104,24 @@ def sequential():
       first = valor.split(" ")[-3]
       last = valor.split(" ")[-1][:-1]
       print(first,last)
-      process = subprocess.call(["./a.out", "-s", first , last])
-      with open("InputFiles/dataset.csv", encoding='utf-8', errors='ignore') as file:
+      process = subprocess.call(["./seqf.out", "-s", first , last])
+      with open("CSV/sequential.csv", encoding='utf-8', errors='ignore') as file:
         return render_template("table.html", csv=file)   
 
 
     if(valor.find("delete")>=0):
       first = valor.split("=")[1][:-1]
       print(first)
-      process = subprocess.call(["./a.out", "-d", first])
-      with open("InputFiles/dataset.csv", encoding='utf-8', errors='ignore') as file:
+      process = subprocess.call(["./seqf.out", "-d", first])
+      with open("CSV/sequential.csv", encoding='utf-8', errors='ignore') as file:
         return render_template("table.html", csv=file)
 
     if(valor.find("insert")>=0):
 
       first = valor.split("(")[1][:-2]
       print(first)
-      process = subprocess.call(["./a.out", "-i", first])
-      with open("InputFiles/dataset.csv", encoding='utf-8', errors='ignore') as file:
+      process = subprocess.call(["./seqf.out", "-i", first])
+      with open("CSV/sequential.csv", encoding='utf-8', errors='ignore') as file:
         return render_template("table.html", csv=file)
     return render_template("table.html", csv=file)
 

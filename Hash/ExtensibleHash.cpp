@@ -12,6 +12,7 @@
 #include <ctime>
 // Comentar o descomentar para Activar/Desactivar mensajes de Debug
 
+//#define TEST_TIMECHRONO // Print time taken
 //#define DEBUG_ACTIONS // Show start and end of actions
 //#define DEBUG_ADD_TREE // Show add decision tree
 //#define DEBUG_SHOW_INDEX // Show index at start of actions
@@ -686,7 +687,7 @@ class ExtensibleHash {
         }
         void write_csv(vector<Record> recibido){
             std::ofstream myfile;
-            myfile.open ("Hash/dataset.csv");
+            myfile.open ("CSV/ehash.csv");
             for (auto val : recibido){
                 myfile<<val.print_csv();
             }
@@ -698,7 +699,7 @@ class ExtensibleHash {
 // #include "ExtensibleHash.h"
 
 int main(int argc, char *argv[]) {
-    filename_t filename  = "students_ehash";
+    filename_t filename  = "DB/db_ehash";
     ExtensibleHash ehash(filename, 1024, 32);
     // GET ARGUMENTS
     if (argc == 2 && string(argv[1])=="print") {
@@ -722,39 +723,51 @@ int main(int argc, char *argv[]) {
     if (input_function=="add") {
         Record record;
         record.set_data_from_string(input_parameter);
+
+        #ifdef TEST_TIMECHRONO
+        auto start = chrono::steady_clock::now();
+        #endif
+
         bool result=ehash.add(record);
-        cout << result <<endl;
+
+
+        #ifdef TEST_TIMECHRONO
+        auto end = chrono::steady_clock::now();
+        cout<<chrono::duration_cast<chrono::microseconds>(end - start).count()<<endl;
+        #else
+        //cout << result <<endl;
         ehash.write_csv(ehash.load());
+        #endif
 
     } else if (input_function=="remove") {
+        #ifdef TEST_TIMECHRONO
         auto start = chrono::steady_clock::now();
+        #endif
 
         bool result = ehash.remove(input_parameter);
 
+        #ifdef TEST_TIMECHRONO
         auto end = chrono::steady_clock::now();
-            
         cout<<chrono::duration_cast<chrono::microseconds>(end - start).count()<<endl;
-        cout << result <<endl;
-        
+        #else
+        //cout << result <<endl;
         ehash.write_csv(ehash.load());
+        #endif
     } else if (input_function=="search") {
         vector<Record> readdata;
-        //cout << "Exact Search results (" <<input_parameter << "):" << endl;
+        
+        #ifdef TEST_TIMECHRONO
         auto start = chrono::steady_clock::now();
-
+        #endif
+        
         readdata = ehash.search(input_parameter);
-
+        
+        #ifdef TEST_TIMECHRONO
         auto end = chrono::steady_clock::now();
-            
         cout<<chrono::duration_cast<chrono::microseconds>(end - start).count()<<endl;
-        /*if (readdata.size()){
-            for (auto &rd : readdata) {
-                rd.print_data();
-                cout << endl;
-            }
-        }
-        */
+        #else
         ehash.write_csv(readdata);
+        #endif
     } else if (input_function=="rangeSearch") {
         stringstream ss(input_parameter);
         string start_key;
@@ -762,145 +775,20 @@ int main(int argc, char *argv[]) {
         getline(ss, start_key, ',');
         getline(ss, end_key, ',');
         vector<Record> readdatarange;
-        // NOTE: Por las operaciones si se tiene una subcadena, esta siempre se considera estrictamente menor
-        //cout << "Range Search results (" << start_key << "," << end_key << "):" << endl;
+
+        #ifdef TEST_TIMECHRONO
         auto start = chrono::steady_clock::now();
+        #endif
 
         readdatarange = ehash.rangeSearch(start_key, end_key);
+
+        #ifdef TEST_TIMECHRONO
         auto end = chrono::steady_clock::now();
-            
-        /*if (readdatarange.size()){
-            for (auto &rd : readdatarange) {
-                rd.print_data();
-                cout << endl;
-            }
-        }*/
         cout<<chrono::duration_cast<chrono::microseconds>(end - start).count()<<endl;
+        #else
         ehash.write_csv(readdatarange);
+        #endif
     } else {
         cout << "UNKNOWN FUNCTION" << endl;
     }
-
-
-    
-    /*
-    filename_t filename  = "students_ehash";
-    ExtensibleHash ehash(filename, 2, 3);
-    // SAMPLE DATA:
-    Record r1,r2,r3,r4,r5,r6;
-    r1.set_data("Rodrigo","Salazar","11111","CS",19,6,120);
-    r2.set_data("Luis","Ponce","11112","CS",20,7,130);
-    r3.set_data("Diego","Guerra","11113","DS",21,8,140);
-    r4.set_data("Arleth","Ivhy","11114","EE",22,9,150);
-    r5.set_data("Juan","Sara","11115","EI",23,10,160);    
-    r6.set_data("Eduardo","Arrozpide","11116","EQ",24,11,170);    
-    // INSERT:
-    vector<Record> sampledata {r1,r2,r3,r4,r5,r6};
-    for (auto &r : sampledata) {
-        cout << "Insert (" << r.get_key() << ") " << endl;
-        ehash.add(r);
-    }
-    // READ EXACT:
-    vector<Record> readdata;
-    for (auto &r : sampledata) {
-        cout << "Exact Search results (" << r.get_key() << "):" << endl;
-        readdata = ehash.search(r.get_key());
-        if (readdata.size()){
-            for (auto &rd : readdata) {
-                rd.print_data();
-                cout << endl;
-            }
-        }
-        else {
-            cout << "NOT FOUND" << endl;
-        }
-    }
-    // READ RANGE:
-    vector<Record> readdatarange;
-    // NOTE: Por las operaciones si se tiene una subcadena, esta siempre se considera estrictamente menor
-    string start_key = "D";
-    string end_key = "K";
-    cout << "Range Search results (" << start_key << "," << end_key << "):" << endl;
-    readdatarange = ehash.rangeSearch(start_key, end_key);
-    if (readdatarange.size()){
-        for (auto &rd : readdatarange) {
-            rd.print_data();
-            cout << endl;
-        }
-    }
-    else {
-        cout << "NOT FOUND" << endl;
-    }
-    // INSERT REPEATED
-    cout << "INSERT REPEATED" <<endl;
-    ehash.add(r1);
-    ehash.add(r1);
-    ehash.add(r1);    
-    for (auto &r : sampledata) {
-        cout << "Exact Search results (" << r.get_key() << "):" << endl;
-        readdata = ehash.search(r.get_key());
-        if (readdata.size()){
-            for (auto &rd : readdata) {
-                rd.print_data();
-                cout << endl;
-            }
-        }
-        else {
-            cout << "NOT FOUND" << endl;
-        }
-    }
-    // REMOVE
-    cout << "REMOVE" <<endl;
-    ehash.remove(r1.get_key());
-    for (auto &r : sampledata) {
-        cout << "Exact Search results (" << r.get_key() << "):" << endl;
-        readdata = ehash.search(r.get_key());
-        if (readdata.size()){
-            for (auto &rd : readdata) {
-                rd.print_data();
-                cout << endl;
-            }
-        }
-        else {
-            cout << "NOT FOUND" << endl;
-        }
-    } 
-    // REINSERT
-    cout << "REINSERT" <<endl;
-    ehash.add(r1);
-    for (auto &r : sampledata) {
-        cout << "Exact Search results (" << r.get_key() << "):" << endl;
-        readdata = ehash.search(r.get_key());
-        if (readdata.size()){
-            for (auto &rd : readdata) {
-                rd.print_data();
-                cout << endl;
-            }
-        }
-        else {
-            cout << "NOT FOUND" << endl;
-        }
-    } 
-        // INSERT REPEATED
-    cout << "REINSERT REPEATED" <<endl;
-    ehash.add(r1);
-    ehash.add(r1);
-    ehash.add(r1); 
-    ehash.add(r1);
-    ehash.add(r1);
-    ehash.add(r1);    
-    for (auto &r : sampledata) {
-        cout << "Exact Search results (" << r.get_key() << "):" << endl;
-        readdata = ehash.search(r.get_key());
-        if (readdata.size()){
-            for (auto &rd : readdata) {
-                rd.print_data();
-                cout << endl;
-            }
-        }
-        else {
-            cout << "NOT FOUND" << endl;
-        }
-    }
-    */
 }
