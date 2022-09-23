@@ -122,7 +122,7 @@ Sintaxis de la función _insert()_ en _Extensible Hashing_:
 bool add(Record record)
 ```
 
-<img src="images/INSERT.png" alt="insert()"/>
+<img src="images/1.jpg" alt="insert()"/>
 
 #### Gráfico Comparativo Búsqueda
 
@@ -138,7 +138,7 @@ Sintaxis de la función _search()_ en _Extensible Hashing_:
 vector<Record> search(T key)
 ```
 
-<img src="images/SEARCH .png" alt="search()"/>
+<img src="images/3.jpg" alt="search()"/>
 
 
 Sintaxis de la función _rangesearch()_ en _Sequential File_:
@@ -153,7 +153,7 @@ Sintaxis de la función _rangesearch()_ en _Extensible Hashing_:
 vector<Record> range_search(T begin_key, T end_key)
 ```
 
-<img src="images/RANGESEARCH.png" alt="rangesearch()"/>
+<img src="images/4.jpg" alt="rangesearch()"/>
 
 #### Gráfico Comparativo Eliminación
 
@@ -169,7 +169,7 @@ Sintaxis de la función _delete()_ en _Sequential File_:
 bool remove(T key)
 ```
 
-<img src="images/DELETE.png" alt="delete()"/>
+<img src="images/2.jpg" alt="delete()"/>
 
 ## Pruebas de uso y Presentación
 
