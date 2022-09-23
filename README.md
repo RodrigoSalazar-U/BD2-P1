@@ -179,8 +179,11 @@ Sintaxis de la función _insert()_ en _Extensible Hashing_:
 ```sh
 bool add(Record record)
 ```
-
 <img src="images/1.jpg" alt="insert()"/>
+
+Como se puede observar en la grafica el ExtendibleHash supera en performance al SequentialFile en todos los casos. Este es un resultado esperado y que respalda a la teoria dado a que, como se explico previamente, las complejidades de acceso a memoria secundaria (las acciones mas cara en el algoritmo) son O(1+k) y O(n). Note que k en el mejor de los casos es 0 y en el pero k=n/B donde B es el numero de registros por bloque. Sin embargo, en el caso promedio, y sabiendo que se esta usando una funcion de hashing cuya distribucion se espera sea uniforme, entonces el valor esperado de k es k= K_MAX / (2^DEPTH_MAX). Por lo tanto, se puede claramente ver que O(1+k) < O(n) en el caso promedio, explicando asi los resultados de la grafica.
+
+Sin embargo, note que los graficos mostrados no son lineales como sugieren las complejidades O(n) y O(k+1). Esto se debe a que el resultado mostrado no es el resultado de una unica inserción, sino que el tiempo total requerido para hacer n inserciones inciando desde un archivo vacio. Note entonces que la secuencia de los valores de n para cada insercion es 1 + 2 + 3 + ... n lo que nos da un valor acotado por n^2. Es de esta forma que se espera que el grafico realmente refleje O^2. Adicionalmente, el eje x se encuentra en una escala logaritmica.
 
 #### Gráfico Comparativo Búsqueda
 
