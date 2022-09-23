@@ -8,15 +8,22 @@
 #include <ctime>
 using namespace std;
 
+//#define DEBUG_VERBOSE
+
 class Sequential_File{
     private:
-        string file_name;
         string sequential_file_name;
         string aux_file_name;
         string header_file_name;
         long registros_ordenados;
         long registros_desordenados;
-        //int registros_anadidos = 0;
+
+        bool file_exists(string file) {
+            ifstream testfile(file, ios::binary);
+            bool res = testfile.is_open();
+            testfile.close();
+            return res;
+        }
 
         unsigned long get_file_size(string file){
             ifstream file_name(file, ios::ate | ios::binary);
@@ -73,6 +80,7 @@ class Sequential_File{
             return ordered_register;
         }
 
+        /*
         void init_sequential(){
             ifstream input(this->file_name, ios::in | ios::binary);
             ofstream sequential(this->sequential_file_name, ios::out | ios::binary);
@@ -96,29 +104,40 @@ class Sequential_File{
             registros_desordenados = 0;
 
         }
+        */
 
-        void iniciar_sequential(){
-            auto start = chrono::steady_clock::now();
+        void insert_init(Estudiante record){
+            ofstream sequential(this->sequential_file_name, ios::out | ios::binary);
+            // Constant
+            unsigned long total_records = 1; // Only one. Current record.
+            long mark_end = -2;// Mark end
+            long mark_start = -1;// Mark start
+            // Update record
+            record.next = mark_end; 
+            record.prev = mark_start; 
+            sequential.write((char*)& record, sizeof(Estudiante));
+            // Init class constants
+            registros_ordenados = total_records;
+            registros_desordenados = 0; 
+            // Iniciar free list
+            iniciar_free_list();
+        }
 
-            ifstream input(this->sequential_file_name, ios::in | ios::binary);
-            if(input.is_open()){
-
+        void load_sequential(){
+            // Si ya existe, leer de header
+            if ( this->file_exists(this->sequential_file_name) ) {
                 this->registros_ordenados = read_ordered_register_in_header();
                 this->registros_desordenados = read_unordered_register_in_header();
-  
             }
-            else{
-                input.close();
-                init_sequential();
+            else {
+                // Marcar como no inicializado
+                this->registros_ordenados = -1;
+                this->registros_desordenados = -1;
             }
-            auto end = chrono::steady_clock::now();
-            
-            cout<<chrono::duration_cast<chrono::microseconds>(end - start).count()<<endl;
-            input.close();
         }
 
         void iniciar_free_list(){
-            fstream header(this->header_file_name, ios::out);
+            ofstream header(this->header_file_name);
             if(!header){
                 cout<<"ERROR FUNCION INICIAR_FREE_LIST"<<endl;
             }
@@ -475,19 +494,20 @@ class Sequential_File{
     public:
     Sequential_File() {};
     
-    Sequential_File(string fileName, string sequentialFile){
-        this->file_name = fileName;
-        this->sequential_file_name = sequentialFile;
-        this->aux_file_name = "Sequential/fileNameAux.bin";
-        this->header_file_name = "Sequential/fileNameHeader.bin";
+    Sequential_File(string sequentialFile){
+        this->sequential_file_name = sequentialFile + ".bin";
+        this->aux_file_name = sequentialFile + "_aux.bin";
+        this->header_file_name = sequentialFile + "_header.bin";;
 
-        this->iniciar_sequential();
-        this->iniciar_free_list();
+        this->load_sequential(); // Cargar ordered register y unordered si existe
+        //this->iniciar_free_list();
     }
 
     ~Sequential_File(){
+        if (registros_ordenados != -1 && registros_desordenados != -1) {
         write_ordered_register_in_header(this->registros_ordenados);
         write_unordered_register_in_header(this->registros_desordenados);
+        }
     }
 
     void print_duda(){
@@ -508,6 +528,12 @@ class Sequential_File{
 
     vector<Estudiante> load(){
         vector<Estudiante> records;
+
+        // ADDED : CASO ESQUINA. PRIMER REGISTRO
+        if(!file_exists(sequential_file_name)) {
+            return records;
+        }
+
         fstream sequential(this->sequential_file_name, ios::in | ios::binary);
 
         if(!sequential){
@@ -515,11 +541,18 @@ class Sequential_File{
             }
         Estudiante record;
         sequential.read((char*)& record, sizeof(record));
+        /*
         do{
             records.push_back(record);
             sequential.seekg((record.next)*sizeof(record));
             sequential.read((char*)& record, sizeof(record));
         }while(record.next!=-2);
+        */
+        while(record.next!=-2){
+            records.push_back(record);
+            sequential.seekg((record.next)*sizeof(record));
+            sequential.read((char*)& record, sizeof(record));
+        }
         sequential.seekg((record.next)*sizeof(record));
         sequential.read((char*)& record, sizeof(record));
         records.push_back(record);
@@ -531,6 +564,11 @@ class Sequential_File{
     }
 
     void insert(Estudiante record){
+        // ADDED : CASO ESQUINA. PRIMER REGISTRO
+        if(!file_exists(sequential_file_name)) {
+            insert_init(record);
+            return;
+        }
         Estudiante base = this->search_file_ordenado(record.codigo);
 
         if(base.codigo == record.codigo){
@@ -538,40 +576,53 @@ class Sequential_File{
             return;
         }
         if(base.prev == -1 and record.codigo < base.codigo){ //Insertar al inicio
+            #ifdef DEBUG_VERBOSE
             cout<<"Insertando al inicio"<<endl;
+            #endif
             this->insertar_inicio(record);
             //this->registros_anadidos+=2;
         }
         else if(base.next == -2){ //Insertar al final
+            #ifdef DEBUG_VERBOSE
             cout<<"Insertando al final"<<endl;
+            #endif
             this->insertar_final(record);
             //this->registros_anadidos+=2;
         }
         else{
             if(base.codigo > record.codigo){
+                #ifdef DEBUG_VERBOSE
                 cout<<"Buscando base previo"<<endl;
+                #endif
                 base = this->get_prev_estudiante(base);
                 //this->registros_anadidos+=2;
             }
             if(base.next < registros_ordenados){ //El base apunta a un file ordenado
+                #ifdef DEBUG_VERBOSE
                 cout<<"Insert Basico"<<endl;
+                #endif
                 this->insert_basico(base,record);
                 //this->registros_anadidos+=2;
             }
             else{ //Apunta a file desordenado
+                #ifdef DEBUG_VERBOSE
                 cout<<"Insert en registros desordenados"<<endl;
+                #endif
                 this->insertar_registros_desordenados(base,record);
                 //this->registros_anadidos+=2;
             }
         }
         if(++registros_desordenados == 5){
+            #ifdef DEBUG_VERBOSE
             cout<<"Rebuild"<<endl;
+            #endif
             this->rebuild_insertar();
             //this->registros_anadidos = 0;
         }
     }
 
     /*
+    // OLD: DELETE
     void Delete(int codigo){
         Estudiante base = this->search_file_ordenado(codigo);
         //this->rebuild_insertar();
@@ -598,6 +649,14 @@ class Sequential_File{
     */
 
     Estudiante search(int codigo){
+        // ADDED : CASO ESQUINA. NO INICIALIZADO
+        if(!file_exists(sequential_file_name)) {
+            #ifdef DEBUG_VERBOSE
+            cout<<"Archivo no existe"<<endl;
+            #endif
+            return Estudiante();
+        }
+
         Estudiante base = this->search_file_ordenado(codigo);
         //cout<<base.codigo<<endl;
 
@@ -605,7 +664,9 @@ class Sequential_File{
             return base;
         }
         if((base.prev == -1 and codigo < base.codigo) or (base.next == -2 and codigo > base.codigo)){
+            #ifdef DEBUG_VERBOSE
             cout<<"La busqueda no fue exitosa, estaba fuera de rango"<<endl;
+            #endif
             return Estudiante();
         }
         if(base.codigo > codigo){
@@ -623,16 +684,27 @@ class Sequential_File{
                 current = this->read(this->sequential_file_name, current.next);
             }
         }
-
+        #ifdef DEBUG_VERBOSE
         cout<<"Busqueda fuera de rango de alcance"<<endl;
+        #endif
         return Estudiante();
     }
 
     bool delete_record(int codigo){
+        // ADDED : CASO ESQUINA. NO INICIALIZADO
+        if(!file_exists(sequential_file_name)) {
+            #ifdef DEBUG_VERBOSE
+            cout<<"Archivo no existe"<<endl;
+            #endif
+            return false;
+        }
+
         Estudiante borrado = this->search(codigo);
 
         if(borrado.codigo != codigo){
+            #ifdef DEBUG_VERBOSE
             cout<<"Quieres borrar un registro inexistente"<<endl;
+            #endif
             return false;
         }
 
@@ -654,7 +726,7 @@ class Sequential_File{
 
     void write_csv(vector<Estudiante> recibido){
         std::ofstream myfile;
-        myfile.open ("InputFiles/dataset.csv");
+        myfile.open ("CSV/sequential.csv");
         for (auto val : recibido){
             myfile<<val.print_csv();
         }
@@ -664,7 +736,7 @@ class Sequential_File{
 
     void write_csv(Estudiante recibido){
         std::ofstream myfile;
-        myfile.open ("InputFiles/dataset.csv");
+        myfile.open ("CSV/sequential.csv");
         myfile<<recibido.print_csv();
         myfile.close();
 
@@ -672,6 +744,16 @@ class Sequential_File{
 
     vector<Estudiante> range_search(int key1, int key2){
         vector<Estudiante> result;
+
+        // ADDED : CASO ESQUINA. NO INICIALIZADO
+        if(!file_exists(sequential_file_name)) {
+            #ifdef DEBUG_VERBOSE
+            cout<<"Archivo no existe"<<endl;
+            #endif
+            return result;
+        }
+
+
 
         if(key1 > key2){
             cout<<"Por favor, introduce un intervalo valido"<<endl;
