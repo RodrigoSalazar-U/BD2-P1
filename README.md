@@ -118,7 +118,8 @@ Con esta operación se elimina un registro. El proceso para lograr este resultad
 | BÚSQUEDA (RANGO)  | _O(log N + L)_        | _O(n)_               |
 | ELIMINACIÓN | _O(n)_            | _O(1+k)_             |
 
-NOTE: Donde n = numero de registros, k = numero de overflow pages y L=numero de registros dentro del rango
+Donde n = numero de registros, k = numero de overflow pages y L=numero de registros dentro del rango
+NOTE: Tabla de complejidad de los peores casos
 
 ## Resultados Experimentales
 
