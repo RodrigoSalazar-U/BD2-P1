@@ -242,7 +242,7 @@ bool remove(T key)
 <img src="images/2.jpg" alt="delete()"/>
 
 
-Los resultados experimentales del delete muestran que el ExtendibleHash tiene una perfomance significativamente que el SequentialFile para esta operacion en todos los casos. Este se debe a que el delete, si bien en el mejor de los casos tiene una complejidad de O(1), en el peor de los casos esta es una operacion extremadamente costos al tener que reconstruir el archivo cuando el aux_file se vuelve demasiado grande, constando dicho rebuild O(n) accesos a memoria. De esta forma, este resultado respalda la teoria que nos indica O(n) vs O(k+1), siendo el ExtensibleHash el claro ganador.
+Los resultados experimentales del delete muestran que el ExtendibleHash tiene una perfomance significativamente que el SequentialFile para esta operacion en todos los casos. Este se debe a que el delete, si bien en el mejor de los casos tiene una complejidad de O(1), en el peor de los casos esta es una operacion extremadamente costos al tener que reconstruir el archivo, constando dicho rebuild O(n) accesos a memoria. De esta forma, este resultado respalda la teoria que nos indica O(n) vs O(k+1), siendo el ExtensibleHash el claro ganador.
 
 
 ## Pruebas de uso y Presentación
