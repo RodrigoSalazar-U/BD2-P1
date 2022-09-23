@@ -147,6 +147,14 @@ Mientras que el segundo, es con data real extraída de [kaggle](https://www.kagg
 
 El análisis comparativo de las pruebas realizadas consta del tiempo de ejecución de cada técnica de indexación con diferentes cantidades de datos, las cuales son: 100,1 000,10 000 y 100 000. Por ello, se realizó múltiples pruebas, las cuales se acumularon y después se generó las gráficas correspondientes a cada operación.
 
+#### Resultados Esperados
+Tomando en consideraciones la tabla de complejidades previamente mostrada se esperan los siguientes resultados
+
+- INSERT: ExtensibleHash mejor performance
+- SEARCH (EXACT): ExtensibleHash mejor performance
+- SEARCH (RANGE): SequentialFile mejor performance
+- DELETE: ExtensibleHash mejor performance
+
 #### Ejecutar Pruebas (Linux)
 
 1. Descomentar la siguiente flag en Hash/ExtensibleHash.cpp y SequentialFile/main.cpp
