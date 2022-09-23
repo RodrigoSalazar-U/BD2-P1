@@ -35,7 +35,7 @@ seqf-clean:
 seqf-start: seqf-drop seqf
 	$(ADD_SEQF) $(START_DATA)
 
-
+start: ehash-start seqf-start
 drop: ehash-drop seqf-drop
 clean: ehash-clean seqf-clean csv-clean
 clean-drop: clean drop
