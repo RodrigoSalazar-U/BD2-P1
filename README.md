@@ -278,4 +278,4 @@ Con esto se logro el objetivo de presentar la aplicación de estas técnicas en 
 
 #### Funcionalidad del Aplicativo
 
-La presentación final en video se encuentra en el siguiente [link](url).
+La presentación final en video se encuentra en el siguiente [link](https://drive.google.com/drive/folders/1I63Wk39D_wXSpe6upwzbRgq1xiqyiPRo?usp=sharing).
