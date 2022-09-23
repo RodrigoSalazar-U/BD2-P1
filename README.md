@@ -25,27 +25,61 @@ Es una técnica simple en el sistema de administración de bases de datos, en es
 
 #### Búsqueda específica:
 
-Con esta operación se retorna los registros que coincidan con la _key_. El proceso para lograr este resultado es la siguiente.
+Con esta operación se retorna los registros que coincidan con la _key_. El proceso para lograr este resultado es la siguiente:
 
-> Se implementó una búsqueda binaria, luego se ejecutó con la _key_ ingresada y al localizar el registro, esta función retorna la posición donde se encuentra dicho registro.
+ - Se realiza una condicional si el registro existe o no, en caso si exista, se continúa con la función.
+   
+ - La busqueda especifica utiliza busqueda binaria en nuestro archivo ordenado, implementada con el nombre de _searchfileordenado()_ lo cual devuelve un objeto. Verificamos que coincida con la _key_ cual indica la posición del objeto con dicha key a encontrar.
+    
+-   Búsqueda específica exitosa en el _dataset_
+    
+    -   Al insertar la _key_ de búsqueda y realizar la lógica de dividir por la mitad y buscar. Si devuelve un objeto _Record_ es porque el objeto se encuentra en el _dataset_ y la búsqueda ha sido exitosa, este objeto contiene los campos del registro.
+ 
+-   En caso nos devuelve objeto vacio:
+    
+    -   Significa que el elemento no se encuentra en el _dataset_ o que la búsqueda se encuentra fuera de alcance. 
+    
+> La búsqueda específica realiza una cantidad de accesos a memoria secundaria de O(log(n)), donde n la cantidad de elementos en _datatset_.
 
 #### Búsqueda por rango:
 
 Con esta operación se retorna todos los registros que coincidan con dos _key_ de búsqueda. El proceso para lograr este resultado es la siguiente.
 
-> Se realiza la búsqueda binaria y en este caso, se retorna todo los registros entre los dos parámetros de la función y se leen secuencialmente.
+-   La función de Búsqueda por Rango utiliza la función de búsqueda binaria nuevamente, con ello localiza el begin-key o elementos mayores a él y menores a end-key.
+-  Luego de encontrar las _keys_, se recorre linealmente los punteros hasta encontrar un elemento mayor o igual end-key. 
+- Si el registro está entre los _keys_ se añade el registro al vector de _Record_ y se retorna dicho vector.
+
+> La busqueda por rango realiza una cantidad de accesos a memoria secundaria de O(log(n) + k), donde n la cantidad de elementos en el _dataset_ y k la cantidad la cantidad de registros entre el begin-key y el end-key.
 
 #### Inserción:
 
 Con esta operación se inserta un nuevo registro, para ello seguimos los lineamientos de la técnica de _Sorted File_. El proceso para lograr este resultado es el siguiente:
 
-> Se recibe a un archivo como input, los archivos se encuentran ordenados físicamente, por ello se realiza un auxiliar para insertar el nuevo registro y luego se actualiza, con ello se asegura que nuestro archivo se encuentre ordenado.
+-   La función de inserción utiliza la búsqueda binaria para obtener la posición de donde insertar y luego hace un intercambio de los punteros.
+    
+-   Casos:
+    
+    -   En el mejor de los casos se inserta en la última posición en el cual el costo de solo la inserción sin contar la búsqueda seria de O(1).
+    
+    -   Primero se verifica si el registro a insertar ya existe y si no, creamos un nuevo registro con el input ingresado. Para ello se realizó funciones según el caso que se presente, tales como, _insertarinicio()_, _insertarfinal()_, _insertbasico()_ y _inseratregistrosdesordenados()_.
+        
+    -  Segundo debemos ubicarnos en la posición actual del registro para insertar, obtener el siguiente registro a este, la posición del registro previo y del registro siguiente. 
+    - Tercero se insertan los punteros actualizados, dado que hubo un intercambio durante la inserción.
+    
+> La Inserción realiza una cantidad de accesos a memoria secundaria de O(log(n)+k) por la búsqueda de un elemento menor al que se va a insertar y O(2) al sobrescribir los punteros que se intercambian para la inserción.
 
 #### Eliminación:
 
 Con esta operación se elimina un registro, asimismo, al borrar cierta cantidad de registros se debe reconstruir el archivo. El proceso para lograr este resultado es el siguiente:
-
-> Primero se realiza la búsqueda del key localizando el registro a eliminar, con la función seekg(pos) obtenemos la posición, con esta posición aplicamos la técnica LIFO, donde en el header escribimos el nuevo next delete y modificamos el next delete a eliminar.
+    
+-   Casos:
+    
+    -   Si el _dataset_ y el _aux dataset_ están vacíos, no procede.
+        
+    -   Primero se verificó que la _key_ existe en el _dataset_, luego obtenemos la posición lógica anterior y posterior a dicho registro. 
+        
+    -   Si este no cuenta con un elemento anterior al anterior de la key implementamos la búsqueda de nuevo pero para el objeto anterior al que queremos eliminar para así obtener su posición.
+    -   Si tenemos el registro anterior al elemento al que queremos eliminar usamos su siguiente registro para identificar la posición del elemento queremos sobrescribir con los punteros del registro que queremos eliminar.
 
 ### Extendible Hashing
 
