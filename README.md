@@ -110,6 +110,28 @@ Mientras que el segundo, es con data real extraída de [kaggle](https://www.kagg
 
 El análisis comparativo de las pruebas realizadas consta del tiempo de ejecución de cada técnica de indexación con diferentes cantidades de datos, las cuales son: 100,1 000,10 000 y 100 000. Por ello, se realizó múltiples pruebas, las cuales se acumularon y después se generó las gráficas correspondientes a cada operación.
 
+#### Ejecutar Pruebas (Linux)
+
+1. Descomentar la siguiente flag en Hash/ExtensibleHash.cpp y SequentialFile/main.cpp
+```cpp
+#define TEST_TIMECHRONO
+```
+
+2. Recompilar los binarios
+```sh
+$: make build
+```
+
+3. Ejecutar pruebas
+```sh
+$: ./generate_time.py
+```
+
+4. Obtener resultados
+```sh
+$: ./add_files.py
+```
+
 #### Gráfico Comparativo Inserción
 
 Sintaxis de la función _insert()_ en _Sequential File_:
