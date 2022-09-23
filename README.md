@@ -185,7 +185,7 @@ Como se puede observar en la grafica el ExtendibleHash supera en performance al 
 
 Sin embargo, note que los graficos mostrados no son lineales como sugieren las complejidades O(n) y O(k+1). Esto se debe a que el resultado mostrado no es el resultado de una unica inserción, sino que el tiempo total requerido para hacer n inserciones inciando desde un archivo vacio. Note entonces que la secuencia de los valores de n para cada insercion es 1 + 2 + 3 + ... n lo que nos da un valor acotado por n^2. Es de esta forma que se espera que el grafico realmente refleje O^2. Adicionalmente, el eje x se encuentra en una escala logaritmica.
 
-#### Gráfico Comparativo Búsqueda
+#### Gráfico Comparativo Búsqueda Exacta
 
 Sintaxis de la función _search()_ en _Sequential File_:
 
@@ -203,7 +203,7 @@ vector<Record> search(T key)
 
 Los resultados experimentales reflejados en la grafica nos dicen que el ExtendibleHash tiene una mejor performance que el SequentialFile en todos los casos. Este es un resultado interesante dado a que las complejidades son O(1+k) y O(log n) respectivamente, pero como se explico en la seccion previa, el valor de k para el caso promedio se puede acotar en terminos lineales de n, lo que sugiere que, dado un n lo suficientemente grande, el SequentialFile deberia ganar. No obstante, lo que no se esta tomando en consideracion es que los overflow buckets unicamente se llenan cuando el resto de buckets no tienen espacio y, considerando que se tiene una profunidad de 32 y un bucket size de 1024, teoricamente seriaposible insertar incluso mas de 100k datos sin nunca tener que requerir de los overflow buckets, haciendo que la complejidad del ExtensibleHash sea para fines practicos O(1). Es de esta forma que el resultado obtenido cobra sentido siendo O(1) < O(log n).
 
-
+#### Gráfico Comparativo Búsqueda Por Rangos
 Sintaxis de la función _rangesearch()_ en _Sequential File_:
 
 ```sh
