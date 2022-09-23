@@ -10,7 +10,7 @@ SEQF_CMD = ehash.cmd
 SEQF_EXE = seqf
 ADD_EHASH = ./add_ehash.sh
 ADD_SEQF = ./add_seqf.sh
-START_DATA = InputFiles/datatest_kaggle_100.csv
+START_DATA = InputFiles/add_100.csv
 
 build: ehash seqf
 ehash:

@@ -238,7 +238,7 @@ Ejemplos de Queries Validas:
 
 >Y al finalizar, la interfaz le muestra de manera amigable el resultado de su consulta:
 
-<img src="images/interfaz3.jpeg" alt="interfaz3" width="600px"/>
+<img src="images/interfaz3.png" alt="interfaz3" width="600px"/>
 
 Con esto se logro el objetivo de presentar la aplicación de estas técnicas en una interfaz gráfica amigable e intuitiva.
 
