@@ -197,6 +197,28 @@ bool remove(T key)
 
 ## Pruebas de uso y Presentación
 
+#### Ejecutar (Linux)
+
+1. Comentar la siguiente flag en Hash/ExtensibleHash.cpp y SequentialFile/main.cpp
+```cpp
+// #define TEST_TIMECHRONO
+```
+
+2. Inicializar binarios con data de ejemplo
+```sh
+$: make start
+```
+
+3. Instalar requerimientos de python3
+```sh
+$: pip install -r requirements.txt
+```
+
+4. Ejecutar app
+```sh
+$: python3 app.py
+```
+
 #### Interfaz Gráfica
 
 >Se implementó la siguiente interfaz gráfica de usuario, en primer lugar se debe seleccionar que tipo de técnica de indexación se ejecutará:
