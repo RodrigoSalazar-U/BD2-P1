@@ -229,7 +229,7 @@ $: python3 app.py
 
 <img src="images/interfaz2.jpeg" alt="interfaz2" width="600px"/>
 
-Ejemplos de Queries:
+Ejemplos de Queries Validas:
 - select * from table;
 - select * from table where id between 2 and 10;
 - select * from table where id=10;
