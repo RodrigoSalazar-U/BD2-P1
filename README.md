@@ -55,33 +55,35 @@ Es una técnica de hash dinámico, el _hashing_ en un sistema de gestión de bas
 
 Con esta operación se retorna los registros que coincidan con la _key_. El proceso para lograr este resultado es la siguiente.
 
-> Se calcula la posición basando en la clave única y esta devuelve una secuencia de índices, luego ingresamos al directorio que coincide con dicho índice de la _key_ solicitado, esto nos dirige a un bucket, el cual contiene el registro que buscamos.
+> Se calcula la posicion del bucket inicial en base a la clave única. Se recorre los registros del bucket y sus overflow pages en busqueda de los registros que coincidan con la _key_ solicitada, agregandolos a una vector. Finalmente, se retorna el vector de resultados
 
 #### Búsqueda por rango:
 
 Con esta operación se retorna todos los registros que coincidan con dos _key_ de búsqueda. El proceso para lograr este resultado es la siguiente.
 
-> Se realiza las mismas operaciones de la función anterior mencionada, en este caso se añade un parámetro adicional, con estos dos parámetros se busca en cada bucket y verificar si estos se encuentran en el rango buscado.
+> Se recorren todos los registros del indice, devolviendo las posiciones de los buckets inciales. Se recorre cada uno de estos buckets y sus overflow pages en busqueda de los registros que cumplan con la desigualdad definida por la _start-key_ y la _end-key_ .
 
 #### Inserción:
 
 Con esta operación se inserta un nuevo registro, para ello seguimos los lineamientos de la técnica de _Sorted File_. El proceso para lograr este resultado es el siguiente:
 
-> Se localiza el bucket respectivo, si no encontró el bucket, procede a buscar uno con la profundidad local mínima y a crearlo. Si encuentra un bucket y no está lleno, procede a crearlo, y si el bucket está lleno, este se divide y reinserta todos los registros.
+> Se localiza el bucket respectivo. Si este tiene profunidad local maxima, se recorre el bucket y sus overflow pages en busqueda de un espacio libre donde insertar. De no encontrar dicho espacio, se crea y encadena una nueva overflow page y se inserta sobre esta nueva page. Caso contrario, si el bucket no tiene profunidad local maxima, se evalua si este aun tiene espacio, de ser el caso, se inserta al final del bucket. Si el bucket estaba lleno, este se divide y se hace una llamada recursiva al insert.
 
 #### Eliminación:
 
 Con esta operación se elimina un registro. El proceso para lograr este resultado es el siguiente:
 
-> Se localiza el buffer que coincide con la key y se elimina dicho registro, cuando éste quede vacío, este buffer puede ser liberado.
+> Se calcula la posicion del bucket inicial en base a la clave única. Se recorre el bucket inicial y todos sus overflow pages en busqueda de registros cuya llave coincida con la _key_ proveida: de ser el caso, se eliminan.
 
 ### Cantidad de accesos a memoria secundaria:
 
 |             | _SEQUENTIAL FILE_ | _EXTENDIBLE HASHING_ |
 | ----------- | ----------------- | -------------------- |
-| INSERCIÓN   | _O(n)_            | _O(1)_               |
+| INSERCIÓN   | _O(n)_            | _O(1+k)_               |
 | BÚSQUEDA    | _O(log N)_        | _O(n)_               |
-| ELIMINACIÓN | _O(n)_            | _O(1)_               |
+| ELIMINACIÓN | _O(n)_            | _O(1+k)_               |
+
+NOTE: Donde n = numero de registros y k = numero de overflow pages
 
 ## Resultados Experimentales
 
