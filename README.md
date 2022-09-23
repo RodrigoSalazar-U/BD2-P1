@@ -201,7 +201,7 @@ vector<Record> search(T key)
 
 <img src="images/3.jpg" alt="search()"/>
 
-Los resultados experimentales reflejados en la grafica nos dicen que el ExtendibleHash tiene una mejor performance que el SequentialFile en todos los casos. Este es un resultado interesante dado a que las complejidades son O(1+k) y O(log n) respectivamente, pero como se explico en la seccion previa, el valor de k para el caso promedio se puede acotar en terminos lineales de n, lo que sugiere que, dado un n lo suficientemente grande, el SequentialFile deberia ganar. No obstante, lo que no se esta tomando en consideracion es que los overflow buckets unicamente se llenan cuando el resto de buckets no tienen espacio y, considerando que se tiene una profunidad de 32 y un bucket size de 1024, teoricamente seriaposible insertar incluso mas de 100k datos sin nunca tener que requerir de los overflow buckets, haciendo que la complejidad del ExtensibleHash sea para fines practicos O(1). Es de esta forma que el resultado obtenido cobra sentido.
+Los resultados experimentales reflejados en la grafica nos dicen que el ExtendibleHash tiene una mejor performance que el SequentialFile en todos los casos. Este es un resultado interesante dado a que las complejidades son O(1+k) y O(log n) respectivamente, pero como se explico en la seccion previa, el valor de k para el caso promedio se puede acotar en terminos lineales de n, lo que sugiere que, dado un n lo suficientemente grande, el SequentialFile deberia ganar. No obstante, lo que no se esta tomando en consideracion es que los overflow buckets unicamente se llenan cuando el resto de buckets no tienen espacio y, considerando que se tiene una profunidad de 32 y un bucket size de 1024, teoricamente seriaposible insertar incluso mas de 100k datos sin nunca tener que requerir de los overflow buckets, haciendo que la complejidad del ExtensibleHash sea para fines practicos O(1). Es de esta forma que el resultado obtenido cobra sentido siendo O(1) < O(log n).
 
 
 Sintaxis de la función _rangesearch()_ en _Sequential File_:
@@ -217,6 +217,11 @@ vector<Record> range_search(T begin_key, T end_key)
 ```
 
 <img src="images/4.jpg" alt="rangesearch()"/>
+
+Los resultados experimentales del rangeSearch son los mas sorprendtes. Por la teoria se espera que el Sequential file supere en eficiencia al ExtendibleHash. Sin embargo, es importante consdierar dos factores:
+1. La complejidad del algoritmo en el Sequential File depende no solo de la rapidez de acceso al primer registro, sino que tambien el numero de registros dentro del rango. A medida que este valor se acerca a n, la complejidad del algoritmo se convierte en O(n), siendo asi igual al ExtensibleHash 
+2. El ExtensibleHash carga registros en bloques grandes y adyacentes, mientras que el sequential file extrae de uno en uno y de diferentes secciones del archivo (especialmente para la busqueda). Esta diferencia le otorga una leve ventaja al ExtensibleHash dado que puede extraer mas registros en una sola operacion y aprovecha mejor la cache por el acceso de espacio de memoria contiguos
+Se hipotetiza que, dado un rango lo suficientemente corto y una cantidad de registros lo suficientemente grande el SequentialFile tendria mejor performance.
 
 #### Gráfico Comparativo Eliminación
 
