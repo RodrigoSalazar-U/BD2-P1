@@ -221,6 +221,7 @@ vector<Record> range_search(T begin_key, T end_key)
 Los resultados experimentales del rangeSearch son los mas sorprendtes. Por la teoria se espera que el Sequential file supere en eficiencia al ExtendibleHash. Sin embargo, es importante consdierar dos factores:
 1. La complejidad del algoritmo en el Sequential File depende no solo de la rapidez de acceso al primer registro, sino que tambien el numero de registros dentro del rango. A medida que este valor se acerca a n, la complejidad del algoritmo se convierte en O(n), siendo asi igual al ExtensibleHash 
 2. El ExtensibleHash carga registros en bloques grandes y adyacentes, mientras que el sequential file extrae de uno en uno y de diferentes secciones del archivo (especialmente para la busqueda). Esta diferencia le otorga una leve ventaja al ExtensibleHash dado que puede extraer mas registros en una sola operacion y aprovecha mejor la cache por el acceso de espacio de memoria contiguos
+
 Se hipotetiza que, dado un rango lo suficientemente corto y una cantidad de registros lo suficientemente grande el SequentialFile tendria mejor performance.
 
 #### Gráfico Comparativo Eliminación
@@ -238,6 +239,10 @@ bool remove(T key)
 ```
 
 <img src="images/2.jpg" alt="delete()"/>
+
+
+Los resultados experimentales del delete muestran que el ExtendibleHash tiene una perfomance significativamente que el SequentialFile para esta operacion en todos los casos. Este se debe a que el delete, si bien en el mejor de los casos tiene una complejidad de O(1), en el peor de los casos esta es una operacion extremadamente costos al tener que reconstruir el archivo cuando el aux_file se vuelve demasiado grande, constando dicho rebuild O(n) accesos a memoria. De esta forma, este resultado respalda la teoria que nos indica O(n) vs O(k+1), siendo el ExtensibleHash el claro ganador.
+
 
 ## Pruebas de uso y Presentación
 
