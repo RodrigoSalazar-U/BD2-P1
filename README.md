@@ -229,6 +229,13 @@ $: python3 app.py
 
 <img src="images/interfaz2.jpeg" alt="interfaz2" width="600px"/>
 
+Ejemplos de Queries:
+- select * from table;
+- select * from table where id between 2 and 10;
+- select * from table where id=10;
+- delete from table where id=20; 
+- insert into table_name values (989,46083,South Dakota-Lincoln,21/06/2020,1,323,43.27841182,-96.7203905);
+
 >Y al finalizar, la interfaz le muestra de manera amigable el resultado de su consulta:
 
 <img src="images/interfaz3.jpeg" alt="interfaz3" width="600px"/>
