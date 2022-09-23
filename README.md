@@ -113,11 +113,12 @@ Con esta operación se elimina un registro. El proceso para lograr este resultad
 
 |             | _SEQUENTIAL FILE_ | _EXTENDIBLE HASHING_ |
 | ----------- | ----------------- | -------------------- |
-| INSERCIÓN   | _O(n)_            | _O(1+k)_               |
-| BÚSQUEDA    | _O(log N)_        | _O(n)_               |
-| ELIMINACIÓN | _O(n)_            | _O(1+k)_               |
+| INSERCIÓN   | _O(n)_            | _O(1+k)_             |
+| BÚSQUEDA (EXACTA) | _O(log N)_        | _O(1+k)_               |
+| BÚSQUEDA (RANGO)  | _O(log N + L)_        | _O(n)_               |
+| ELIMINACIÓN | _O(n)_            | _O(1+k)_             |
 
-NOTE: Donde n = numero de registros y k = numero de overflow pages
+NOTE: Donde n = numero de registros, k = numero de overflow pages y L=numero de registros dentro del rango
 
 ## Resultados Experimentales
 
@@ -219,7 +220,7 @@ vector<Record> range_search(T begin_key, T end_key)
 <img src="images/4.jpg" alt="rangesearch()"/>
 
 Los resultados experimentales del rangeSearch son los mas sorprendtes. Por la teoria se espera que el Sequential file supere en eficiencia al ExtendibleHash. Sin embargo, es importante consdierar dos factores:
-1. La complejidad del algoritmo en el Sequential File depende no solo de la rapidez de acceso al primer registro, sino que tambien el numero de registros dentro del rango. A medida que este valor se acerca a n, la complejidad del algoritmo se convierte en O(n), siendo asi igual al ExtensibleHash 
+1. La complejidad del algoritmo en el Sequential File depende no solo de la rapidez de acceso al primer registro, sino que tambien el numero de registros dentro del rango (L). A medida que este valor se acerca a n, la complejidad del algoritmo se convierte en O(log n + L) = O(log n + n) = O(n), siendo asi igual al ExtensibleHash 
 2. El ExtensibleHash carga registros en bloques grandes y adyacentes, mientras que el sequential file extrae de uno en uno y de diferentes secciones del archivo (especialmente para la busqueda). Esta diferencia le otorga una leve ventaja al ExtensibleHash dado que puede extraer mas registros en una sola operacion y aprovecha mejor la cache por el acceso de espacio de memoria contiguos
 
 Se hipotetiza que, dado un rango lo suficientemente corto y una cantidad de registros lo suficientemente grande el SequentialFile tendria mejor performance.
